@@ -1,0 +1,1076 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#1a6fbf">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="RadiSafe">
+<title>RadiSafe – CT 방사선량 안전 계산기</title>
+
+<!-- Toss Payments Widget SDK -->
+<script src="https://js.tosspayments.com/v1/payment-widget"></script>
+
+<style>
+:root {
+  --primary: #1a6fbf;
+  --primary-dark: #145499;
+  --primary-light: #e8f2fd;
+  --accent: #0ea97d;
+  --accent-light: #e6f9f4;
+  --warn: #e8672a;
+  --warn-light: #fdf0e8;
+  --danger: #d03030;
+  --bg: #f4f7fb;
+  --card: #ffffff;
+  --text: #1a2233;
+  --text2: #4a5568;
+  --border: #dde3ed;
+  --radius: 16px;
+  --shadow: 0 2px 16px rgba(26,111,191,0.09);
+  --safe-area-bottom: env(safe-area-inset-bottom, 0px);
+  --safe-area-top: env(safe-area-inset-top, 0px);
+}
+* { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: -apple-system, 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif;
+  background: var(--bg); color: var(--text);
+  min-height: 100vh;
+  padding-bottom: calc(70px + var(--safe-area-bottom));
+}
+
+/* ── Header ── */
+header {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+  color: white;
+  padding: calc(var(--safe-area-top) + 10px) 20px 10px;
+  display: flex; align-items: center; justify-content: space-between;
+  position: sticky; top: 0; z-index: 200;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.15);
+  min-height: calc(56px + var(--safe-area-top));
+}
+.logo { display: flex; align-items: center; gap: 10px; font-size: 20px; font-weight: 800; }
+.logo-icon { width: 32px; height: 32px; background: white; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; font-size: 17px; }
+.btn-premium-header {
+  background: var(--accent); border: none; color: white;
+  padding: 8px 16px; border-radius: 20px; font-size: 13px; font-weight: 700;
+  cursor: pointer; display: flex; align-items: center; gap: 5px;
+  white-space: nowrap;
+}
+
+/* ── Hero ── */
+.hero {
+  background: linear-gradient(135deg, var(--primary-dark) 0%, #2a85d4 100%);
+  color: white; padding: 28px 20px 52px; text-align: center;
+}
+.hero h1 { font-size: 24px; font-weight: 800; line-height: 1.35; margin-bottom: 8px; }
+.hero p { font-size: 14px; opacity: 0.88; line-height: 1.65; }
+
+/* ── Container ── */
+.container { max-width: 640px; margin: -28px auto 0; padding: 0 14px; }
+
+/* ── Tab bar ── */
+.tab-bar {
+  position: fixed; bottom: 0; left: 0; right: 0; z-index: 200;
+  background: white;
+  border-top: 1px solid var(--border);
+  display: flex;
+  padding-bottom: var(--safe-area-bottom);
+  box-shadow: 0 -2px 12px rgba(0,0,0,0.06);
+}
+.tab-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center;
+  padding: 10px 4px 8px; cursor: pointer; gap: 3px;
+  font-size: 11px; color: #9aabb8; font-weight: 500;
+  border: none; background: none; transition: color 0.15s;
+}
+.tab-item .tab-icon { font-size: 22px; line-height: 1; }
+.tab-item.active { color: var(--primary); }
+.tab-item.active .tab-icon { transform: scale(1.1); }
+
+/* ── Pages ── */
+.page { display: none; }
+.page.active { display: block; }
+
+/* ── Card ── */
+.card {
+  background: var(--card); border-radius: var(--radius);
+  box-shadow: var(--shadow); padding: 20px; margin-bottom: 14px;
+}
+.card-title {
+  font-size: 15px; font-weight: 700; color: var(--primary);
+  margin-bottom: 16px; display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
+}
+.badge { font-size: 11px; padding: 2px 8px; border-radius: 20px; font-weight: 600; white-space: nowrap; }
+.badge-free { background: var(--primary-light); color: var(--primary); }
+.badge-premium { background: #fff3cd; color: #856404; }
+.badge-active { background: var(--accent-light); color: var(--accent); }
+
+/* ── Region horizontal scroll ── */
+.region-scroll { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 6px; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
+.region-scroll::-webkit-scrollbar { display: none; }
+.region-btn {
+  flex-shrink: 0; scroll-snap-align: start;
+  border: 2px solid var(--border); border-radius: 12px;
+  padding: 10px 14px; cursor: pointer; text-align: center;
+  background: white; transition: all 0.15s;
+  font-size: 13px; color: var(--text2); font-weight: 500;
+  min-width: 72px; display: flex; flex-direction: column; align-items: center; gap: 4px;
+}
+.region-btn .ri { font-size: 24px; }
+.region-btn.selected { border-color: var(--primary); background: var(--primary-light); color: var(--primary); font-weight: 700; }
+
+/* ── Form ── */
+.form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-group { display: flex; flex-direction: column; gap: 6px; }
+.form-group.full { grid-column: 1 / -1; }
+label { font-size: 12px; font-weight: 600; color: var(--text2); }
+label .unit { font-weight: 400; color: #aaa; }
+input[type="number"], select {
+  border: 1.5px solid var(--border); border-radius: 10px;
+  padding: 12px 14px; font-size: 16px; color: var(--text);
+  background: white; transition: border-color 0.2s; width: 100%;
+  -webkit-appearance: none; appearance: none;
+}
+input[type="number"]:focus, select:focus {
+  outline: none; border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+select {
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%234a5568' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat: no-repeat; background-position: right 14px center; padding-right: 38px;
+}
+
+/* ── Sticky calc button ── */
+.calc-sticky {
+  position: sticky; bottom: calc(70px + var(--safe-area-bottom) + 10px);
+  z-index: 100; margin: 8px 0;
+}
+.btn-calc {
+  width: 100%; padding: 17px;
+  background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+  color: white; border: none; border-radius: 14px;
+  font-size: 16px; font-weight: 700; cursor: pointer;
+  box-shadow: 0 6px 20px rgba(26,111,191,0.35);
+  letter-spacing: -0.3px; transition: transform 0.1s, opacity 0.1s;
+}
+.btn-calc:active { transform: scale(0.98); opacity: 0.92; }
+
+/* ── Result ── */
+.result-dose { text-align: center; padding: 20px 0 14px; }
+.dose-value { font-size: 60px; font-weight: 900; color: var(--primary); line-height: 1; }
+.dose-unit { font-size: 20px; color: var(--text2); }
+.dose-label { font-size: 13px; color: var(--text2); margin-top: 5px; }
+.dose-equiv { font-size: 13px; color: var(--text2); margin-top: 10px;
+  background: var(--primary-light); border-radius: 8px; padding: 8px 14px; display: inline-block; line-height: 1.5; }
+
+/* ── Gauge ── */
+.gauge-wrap { margin: 18px 0 6px; }
+.gauge-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--text2); margin-bottom: 6px; font-weight: 500; }
+.gauge-track { height: 14px; border-radius: 7px; background: #e2e8f0; overflow: hidden; }
+.gauge-fill { height: 100%; border-radius: 7px; transition: width 1s cubic-bezier(.25,.8,.25,1); }
+.gauge-safe { background: linear-gradient(90deg, #0ea97d, #3dd68c); }
+.gauge-warn { background: linear-gradient(90deg, #e8a020, #f5c842); }
+.gauge-danger { background: linear-gradient(90deg, #d03030, #e85c5c); }
+
+/* ── Risk card ── */
+.risk-card { border-radius: 12px; padding: 14px 16px; margin-top: 14px; display: flex; align-items: flex-start; gap: 12px; }
+.risk-safe { background: var(--accent-light); border: 1.5px solid #9de5cc; }
+.risk-warn { background: var(--warn-light); border: 1.5px solid #f5c490; }
+.risk-danger { background: #fdecea; border: 1.5px solid #f5a0a0; }
+.risk-icon { font-size: 26px; flex-shrink: 0; }
+.risk-text h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.risk-text p { font-size: 13px; line-height: 1.55; color: var(--text2); }
+
+/* ── Compare ── */
+.compare-row { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--border); }
+.compare-row:last-child { border-bottom: none; }
+.compare-name { font-size: 12px; color: var(--text2); min-width: 110px; flex-shrink: 0; }
+.compare-bar-wrap { flex: 1; }
+.compare-bar { height: 7px; background: var(--primary-light); border-radius: 4px; overflow: hidden; }
+.compare-bar-fill { height: 100%; background: var(--primary); border-radius: 4px; }
+.compare-val { font-size: 12px; font-weight: 700; color: var(--primary); min-width: 50px; text-align: right; }
+
+/* ── History (premium) ── */
+.history-item { display: flex; align-items: center; justify-content: space-between; padding: 12px 0; border-bottom: 1px solid var(--border); }
+.history-item:last-child { border-bottom: none; }
+.history-date { font-size: 12px; color: var(--text2); margin-top: 2px; }
+.history-region { font-size: 14px; font-weight: 600; }
+.history-dose { font-size: 20px; font-weight: 800; color: var(--primary); }
+
+/* ── Annual bar ── */
+.annual-bar-wrap { margin: 10px 0; }
+.annual-bar-label { display: flex; justify-content: space-between; font-size: 13px; margin-bottom: 6px; font-weight: 500; }
+.annual-bar-track { height: 22px; background: #e2e8f0; border-radius: 11px; overflow: hidden; }
+.annual-bar-fill { height: 100%; border-radius: 11px;
+  background: linear-gradient(90deg, var(--primary), var(--accent));
+  display: flex; align-items: center; padding: 0 10px;
+  color: white; font-size: 12px; font-weight: 700; min-width: 40px; }
+
+/* ── Premium gate ── */
+.premium-gate { position: relative; border-radius: var(--radius); overflow: hidden; margin-bottom: 14px; }
+.premium-overlay {
+  position: absolute; inset: 0; backdrop-filter: blur(4px);
+  background: rgba(255,255,255,0.8);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 10px; z-index: 10; border-radius: var(--radius); padding: 20px;
+}
+.premium-overlay h3 { font-size: 16px; font-weight: 800; }
+.premium-overlay p { font-size: 13px; color: var(--text2); text-align: center; line-height: 1.5; max-width: 240px; }
+.lock-icon { font-size: 30px; }
+.btn-upgrade {
+  background: linear-gradient(135deg, #f5a623, #e8672a); color: white;
+  border: none; padding: 13px 28px; border-radius: 12px;
+  font-size: 15px; font-weight: 700; cursor: pointer; letter-spacing: -0.3px;
+  box-shadow: 0 4px 14px rgba(232,103,42,0.4);
+}
+.premium-content { filter: blur(2px); pointer-events: none; user-select: none; }
+
+/* ── Premium plan page ── */
+.plan-card {
+  border: 2px solid var(--border); border-radius: var(--radius);
+  padding: 22px; margin-bottom: 12px; cursor: pointer; transition: all 0.15s;
+  position: relative;
+}
+.plan-card.recommended {
+  border-color: var(--primary);
+  box-shadow: 0 0 0 3px var(--primary-light);
+}
+.plan-badge {
+  position: absolute; top: -1px; left: 50%; transform: translateX(-50%);
+  background: var(--primary); color: white; font-size: 11px; font-weight: 700;
+  padding: 3px 12px; border-radius: 0 0 8px 8px; white-space: nowrap;
+}
+.plan-price { font-size: 30px; font-weight: 900; color: var(--primary); }
+.plan-price span { font-size: 14px; font-weight: 400; color: var(--text2); }
+.plan-features { list-style: none; margin-top: 12px; display: flex; flex-direction: column; gap: 7px; }
+.plan-features li { font-size: 13px; color: var(--text2); display: flex; gap: 8px; align-items: center; }
+.plan-features li::before { content: '✓'; color: var(--accent); font-weight: 700; flex-shrink: 0; }
+
+/* ── Toss payment widget container ── */
+#payment-widget-container { display: none; }
+#payment-method { min-height: 200px; }
+#agreement { margin-top: 12px; }
+
+/* ── Modal ── */
+.modal-bg {
+  display: none; position: fixed; inset: 0; z-index: 500;
+  background: rgba(0,0,0,0.55); align-items: flex-end;
+}
+.modal-bg.active { display: flex; }
+.modal-sheet {
+  background: white; width: 100%; border-radius: 24px 24px 0 0;
+  padding: 0 20px calc(20px + var(--safe-area-bottom));
+  max-height: 92vh; overflow-y: auto;
+  animation: slideUp 0.3s cubic-bezier(.25,.8,.25,1);
+}
+.modal-handle { width: 36px; height: 4px; background: #dde3ed; border-radius: 2px; margin: 14px auto 20px; }
+@keyframes slideUp { from { transform: translateY(60%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+.modal-title { font-size: 20px; font-weight: 800; margin-bottom: 6px; }
+.modal-sub { font-size: 14px; color: var(--text2); margin-bottom: 20px; line-height: 1.5; }
+
+/* ── Auth modal ── */
+.input-field {
+  width: 100%; border: 1.5px solid var(--border); border-radius: 12px;
+  padding: 14px 16px; font-size: 16px; color: var(--text); margin-bottom: 10px;
+  -webkit-appearance: none;
+}
+.input-field:focus { outline: none; border-color: var(--primary); box-shadow: 0 0 0 3px var(--primary-light); }
+.btn-full {
+  width: 100%; padding: 16px; border-radius: 12px; font-size: 16px;
+  font-weight: 700; cursor: pointer; border: none; margin-bottom: 10px;
+  transition: opacity 0.15s;
+}
+.btn-full:active { opacity: 0.88; }
+.btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-dark)); color: white; }
+.btn-kakao { background: #FEE500; color: #3C1E1E; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-naver { background: #03C75A; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
+.divider { display: flex; align-items: center; gap: 10px; margin: 14px 0; }
+.divider-line { flex: 1; height: 1px; background: var(--border); }
+.divider span { font-size: 12px; color: #aaa; }
+
+/* ── Profile page ── */
+.profile-section { margin-bottom: 18px; }
+.profile-section-title { font-size: 12px; font-weight: 700; color: var(--text2); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 8px; }
+.profile-row {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; background: white; border-radius: 12px;
+  margin-bottom: 6px; box-shadow: 0 1px 4px rgba(0,0,0,0.06);
+  cursor: pointer;
+}
+.profile-row-left { display: flex; align-items: center; gap: 12px; font-size: 15px; font-weight: 500; }
+.profile-row-icon { font-size: 20px; width: 36px; height: 36px; border-radius: 10px; background: var(--bg); display: flex; align-items: center; justify-content: center; }
+.profile-row-arrow { color: #ccc; font-size: 18px; }
+
+/* ── Subscription status ── */
+.sub-status-card {
+  background: linear-gradient(135deg, var(--primary-dark), #2a85d4);
+  color: white; border-radius: var(--radius); padding: 20px; margin-bottom: 14px;
+}
+.sub-status-card h3 { font-size: 18px; font-weight: 800; margin-bottom: 4px; }
+.sub-status-card p { font-size: 13px; opacity: 0.85; }
+.sub-status-badge { display: inline-block; background: var(--accent); color: white; font-size: 12px; font-weight: 700; padding: 3px 10px; border-radius: 20px; margin-bottom: 10px; }
+
+/* ── Toast ── */
+.toast {
+  position: fixed; bottom: calc(80px + var(--safe-area-bottom)); left: 50%; transform: translateX(-50%);
+  background: #1a2233; color: white; padding: 12px 20px; border-radius: 12px;
+  font-size: 14px; font-weight: 500; z-index: 1000; white-space: nowrap;
+  opacity: 0; transition: opacity 0.3s; pointer-events: none;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.25);
+}
+.toast.show { opacity: 1; }
+
+/* ── Disclaimer ── */
+.disclaimer {
+  font-size: 11px; color: #999; line-height: 1.6;
+  background: #f8fafc; border: 1px solid var(--border); border-radius: 12px;
+  padding: 12px 14px; margin-bottom: 14px;
+}
+
+/* ── Responsive: Wider screens ── */
+@media (min-width: 600px) {
+  .form-grid { grid-template-columns: 1fr 1fr; }
+  .hero h1 { font-size: 28px; }
+  .dose-value { font-size: 72px; }
+}
+@media (max-width: 360px) {
+  .compare-name { min-width: 90px; font-size: 11px; }
+  .dose-value { font-size: 52px; }
+}
+</style>
+</head>
+<body>
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">☢️</div>
+    RadiSafe
+  </div>
+  <button class="btn-premium-header" onclick="showPremiumModal()" id="headerPremiumBtn">✨ 프리미엄</button>
+</header>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 1: CALCULATOR
+════════════════════════════════════════════ -->
+<div class="page active" id="page-calc">
+  <div class="hero">
+    <h1>CT 방사선량,<br>직접 확인하세요</h1>
+    <p>CTDI·DLP 값을 입력하면 실제 유효선량과<br>안전 여부를 알려드립니다</p>
+  </div>
+
+  <div class="container">
+    <!-- Input card -->
+    <div class="card">
+      <div class="card-title">🩻 촬영 정보 입력 <span class="badge badge-free">무료</span></div>
+
+      <div class="form-group" style="margin-bottom:16px;">
+        <label>촬영 부위</label>
+        <div class="region-scroll" id="regionScroll">
+          <button class="region-btn" data-region="head"           onclick="selectRegion(this)"><span class="ri">🧠</span>머리</button>
+          <button class="region-btn" data-region="neck"           onclick="selectRegion(this)"><span class="ri">🫀</span>목</button>
+          <button class="region-btn" data-region="chest"          onclick="selectRegion(this)"><span class="ri">🫁</span>흉부</button>
+          <button class="region-btn" data-region="abdomen"        onclick="selectRegion(this)"><span class="ri">🫃</span>복부</button>
+          <button class="region-btn" data-region="pelvis"         onclick="selectRegion(this)"><span class="ri">🦴</span>골반</button>
+          <button class="region-btn" data-region="chest_abdomen"  onclick="selectRegion(this)"><span class="ri">🩺</span>흉복부</button>
+          <button class="region-btn" data-region="abdomen_pelvis" onclick="selectRegion(this)"><span class="ri">🔬</span>복골반</button>
+          <button class="region-btn" data-region="whole"          onclick="selectRegion(this)"><span class="ri">🧍</span>전신</button>
+          <button class="region-btn" data-region="spine_lumbar"   onclick="selectRegion(this)"><span class="ri">🦷</span>요추</button>
+        </div>
+      </div>
+
+      <div class="form-grid">
+        <div class="form-group">
+          <label>CTDIvol <span class="unit">(mGy)</span></label>
+          <input type="number" id="ctdi" inputmode="decimal" placeholder="예: 12.5" min="0" step="0.1">
+        </div>
+        <div class="form-group">
+          <label>DLP <span class="unit">(mGy·cm)</span></label>
+          <input type="number" id="dlp" inputmode="decimal" placeholder="예: 450" min="0" step="1">
+        </div>
+        <div class="form-group">
+          <label>나이 <span class="unit">(세)</span></label>
+          <input type="number" id="age" inputmode="numeric" placeholder="예: 45" min="0" max="120">
+        </div>
+        <div class="form-group">
+          <label>성별</label>
+          <select id="sex">
+            <option value="neutral">선택 안 함</option>
+            <option value="male">남성</option>
+            <option value="female">여성</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label>체중 <span class="unit">(kg)</span></label>
+          <input type="number" id="weight" inputmode="decimal" placeholder="예: 65" min="1" max="300">
+        </div>
+        <div class="form-group">
+          <label>촬영 횟수 (상)</label>
+          <select id="phases">
+            <option value="1">1회 (단상)</option>
+            <option value="2">2회 (2상)</option>
+            <option value="3">3회 (3상)</option>
+            <option value="4">4회 이상</option>
+          </select>
+        </div>
+      </div>
+    </div>
+
+    <!-- Sticky calc button -->
+    <div class="calc-sticky">
+      <button class="btn-calc" onclick="calculate()">📊 유효선량 계산하기</button>
+    </div>
+
+    <!-- Result card (hidden until calc) -->
+    <div class="card" id="resultCard" style="display:none;">
+      <div class="card-title">📈 계산 결과 <span class="badge badge-free">무료</span></div>
+      <div class="result-dose">
+        <div><span class="dose-value" id="doseValue">—</span><span class="dose-unit"> mSv</span></div>
+        <div class="dose-label">유효선량 (Effective Dose)</div>
+        <div class="dose-equiv" id="doseEquiv"></div>
+      </div>
+      <div class="gauge-wrap">
+        <div class="gauge-label"><span>진단기준 대비</span><span id="gaugePercent">—</span></div>
+        <div class="gauge-track"><div class="gauge-fill" id="gaugeFill" style="width:0%"></div></div>
+        <div style="font-size:11px;color:#aaa;margin-top:5px;text-align:right;" id="gaugeNote"></div>
+      </div>
+      <div class="risk-card" id="riskCard">
+        <div class="risk-icon" id="riskIcon"></div>
+        <div class="risk-text"><h4 id="riskTitle"></h4><p id="riskDesc"></p></div>
+      </div>
+      <div style="margin-top:18px;">
+        <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;">📌 일상 방사선과 비교</div>
+        <div id="compareRows"></div>
+      </div>
+      <!-- Save to history CTA (premium) -->
+      <div id="saveCtaFree" style="margin-top:16px;background:var(--primary-light);border-radius:12px;padding:14px;text-align:center;">
+        <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">📅 이 결과를 연간 기록에 저장하려면</div>
+        <button class="btn-upgrade" style="font-size:14px;padding:10px 22px;" onclick="showPremiumModal()">✨ 프리미엄 시작하기</button>
+      </div>
+      <div id="saveCtaPremium" style="display:none;margin-top:16px;">
+        <button style="width:100%;padding:14px;background:var(--accent);color:white;border:none;border-radius:12px;font-size:15px;font-weight:700;cursor:pointer;" onclick="saveToHistory()">📅 연간 기록에 저장하기</button>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      ⚠️ <strong>참고용 추정치:</strong> EURATOM 및 ICRP 103 기준 계산기입니다. 실제 선량은 장비·프로토콜에 따라 다를 수 있으며 의료적 판단을 대체하지 않습니다.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 2: MY RECORDS (PREMIUM)
+════════════════════════════════════════════ -->
+<div class="page" id="page-records">
+  <div style="height:16px;"></div>
+  <div class="container">
+    <!-- If not premium: gate -->
+    <div id="recordsGate">
+      <div class="premium-gate">
+        <div class="premium-content">
+          <div class="card">
+            <div class="card-title">📅 2026년 누적 선량 <span class="badge badge-premium">✨ 프리미엄</span></div>
+            <div class="annual-bar-wrap">
+              <div class="annual-bar-label"><span>누적 유효선량</span><span>12.4 / 20 mSv</span></div>
+              <div class="annual-bar-track"><div class="annual-bar-fill" style="width:62%">62%</div></div>
+            </div>
+            <div style="font-size:13px;color:var(--text2);margin-top:10px;">💡 추가로 안전하게 받을 수 있는 선량: <strong>7.6 mSv</strong></div>
+            <div style="height:1px;background:var(--border);margin:16px 0;"></div>
+            <div class="history-item"><div><div class="history-region">🫁 흉부 CT</div><div class="history-date">2026-03-15</div></div><div class="history-dose">8.0 mSv</div></div>
+            <div class="history-item"><div><div class="history-region">🫃 복부 CT</div><div class="history-date">2026-01-20</div></div><div class="history-dose">4.4 mSv</div></div>
+          </div>
+        </div>
+        <div class="premium-overlay">
+          <div class="lock-icon">🔒</div>
+          <h3>연간 선량 추적</h3>
+          <p>CT 검사 기록을 저장하고<br>올해 누적 선량과 안전 여유분을<br>한눈에 확인하세요</p>
+          <button class="btn-upgrade" onclick="showPremiumModal()">✨ 프리미엄으로 업그레이드</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- If premium: records -->
+    <div id="recordsPremium" style="display:none;">
+      <div class="card">
+        <div class="card-title">📅 <span id="recordsYear">2026</span>년 누적 선량 <span class="badge badge-active">✅ 프리미엄</span></div>
+        <div class="annual-bar-wrap">
+          <div class="annual-bar-label"><span>누적 유효선량</span><span id="annualSummary">0 / 20 mSv</span></div>
+          <div class="annual-bar-track"><div class="annual-bar-fill" id="annualBarFill" style="width:0%">0%</div></div>
+        </div>
+        <div style="font-size:13px;color:var(--text2);margin-top:10px;" id="annualRemaining">올해 추가 안전 선량: <strong>20 mSv</strong></div>
+      </div>
+      <div class="card">
+        <div class="card-title">📋 검사 기록</div>
+        <div id="historyList"><div style="text-align:center;padding:24px;color:var(--text2);font-size:14px;">아직 저장된 기록이 없습니다.<br>계산 후 저장 버튼을 눌러보세요 😊</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 3: PREMIUM & PAYMENT
+════════════════════════════════════════════ -->
+<div class="page" id="page-premium">
+  <div style="height:16px;"></div>
+  <div class="container">
+    <div class="card" style="text-align:center;padding:28px 20px;">
+      <div style="font-size:48px;margin-bottom:10px;">✨</div>
+      <h2 style="font-size:22px;font-weight:900;margin-bottom:6px;">RadiSafe 프리미엄</h2>
+      <p style="font-size:14px;color:var(--text2);line-height:1.6;">내 방사선 노출을 완전히 관리하세요</p>
+    </div>
+
+    <!-- Plans -->
+    <div class="plan-card recommended" onclick="selectPlan('monthly')" id="plan-monthly">
+      <div class="plan-badge">🔥 가장 인기</div>
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;margin-top:8px;">월간 구독</div>
+      <div class="plan-price">₩3,900 <span>/ 월</span></div>
+      <div style="font-size:12px;color:var(--accent);font-weight:600;margin-top:4px;">첫 달 무료 · 언제든 해지 가능</div>
+      <ul class="plan-features">
+        <li>연간 누적 CT 선량 추적</li>
+        <li>개인 맞춤 위험도 계산</li>
+        <li>무제한 검사 기록 저장</li>
+        <li>PDF 리포트 저장·공유</li>
+      </ul>
+    </div>
+
+    <div class="plan-card" onclick="selectPlan('yearly')" id="plan-yearly">
+      <div style="font-size:12px;font-weight:700;color:var(--text2);margin-bottom:8px;">연간 구독 <span style="background:#fff3cd;color:#856404;font-size:11px;padding:2px 7px;border-radius:6px;margin-left:6px;">35% 절약</span></div>
+      <div class="plan-price">₩2,500 <span>/ 월</span></div>
+      <div style="font-size:12px;color:var(--text2);margin-top:2px;">연 ₩30,000 (월 결제 시 ₩46,800)</div>
+      <ul class="plan-features">
+        <li>월간 구독 모든 기능 포함</li>
+        <li>의사 상담용 요약서 출력</li>
+        <li>안전 선량 초과 시 알림</li>
+      </ul>
+    </div>
+
+    <!-- Payment button -->
+    <button class="btn-full btn-primary" onclick="startPayment()" id="payBtn" style="margin-top:4px;">
+      🔒 안전하게 시작하기
+    </button>
+    <div style="text-align:center;font-size:12px;color:#aaa;margin-top:8px;margin-bottom:20px;">
+      토스페이먼츠로 안전하게 결제 · 언제든 해지 가능
+    </div>
+
+    <!-- Toss payment widget (shown during checkout) -->
+    <div id="payment-widget-container" style="display:none;">
+      <div class="card">
+        <div class="card-title">💳 결제 수단</div>
+        <div id="payment-method"></div>
+        <div id="agreement" style="margin-top:12px;"></div>
+        <button class="btn-full btn-primary" onclick="confirmPayment()" style="margin-top:16px;">결제 완료하기</button>
+        <button onclick="cancelPayment()" style="width:100%;background:none;border:none;color:var(--text2);font-size:14px;padding:10px;cursor:pointer;">취소</button>
+      </div>
+    </div>
+
+    <div class="disclaimer">
+      구독은 결제일 기준으로 자동 갱신됩니다. 해지는 설정 > 구독 관리에서 언제든지 할 수 있습니다. 결제는 토스페이먼츠를 통해 안전하게 처리됩니다.
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     PAGE 4: MY PAGE
+════════════════════════════════════════════ -->
+<div class="page" id="page-mypage">
+  <div style="height:16px;"></div>
+  <div class="container">
+    <!-- Not logged in -->
+    <div id="mypageGuest">
+      <div class="card" style="text-align:center;padding:32px 20px;">
+        <div style="font-size:52px;margin-bottom:12px;">👤</div>
+        <h3 style="font-size:18px;font-weight:800;margin-bottom:8px;">로그인이 필요합니다</h3>
+        <p style="font-size:14px;color:var(--text2);line-height:1.6;margin-bottom:20px;">로그인하면 검사 기록이 저장되고<br>모든 기기에서 확인할 수 있어요</p>
+        <button class="btn-full btn-primary" onclick="showLoginModal()">이메일로 로그인</button>
+        <button class="btn-full btn-kakao" onclick="showToast('카카오 로그인 연동 예정입니다')">
+          <span style="font-size:18px;">💬</span> 카카오로 계속하기
+        </button>
+        <button class="btn-full btn-naver" onclick="showToast('네이버 로그인 연동 예정입니다')">
+          <span style="font-weight:900;font-size:14px;">N</span> 네이버로 계속하기
+        </button>
+      </div>
+    </div>
+
+    <!-- Logged in -->
+    <div id="mypageUser" style="display:none;">
+      <div class="sub-status-card" id="subStatusCard">
+        <div class="sub-status-badge" id="subBadge">무료 회원</div>
+        <h3 id="subStatusTitle">기본 계산만 사용 중</h3>
+        <p id="subStatusDesc">프리미엄으로 업그레이드하면 연간 선량 추적과 리포트를 사용할 수 있어요</p>
+      </div>
+
+      <div class="profile-section">
+        <div class="profile-section-title">계정</div>
+        <div class="profile-row">
+          <div class="profile-row-left">
+            <div class="profile-row-icon">📧</div>
+            <span id="userEmailDisplay">user@example.com</span>
+          </div>
+          <span class="profile-row-arrow">›</span>
+        </div>
+        <div class="profile-row" onclick="goToTab('premium')">
+          <div class="profile-row-left">
+            <div class="profile-row-icon">✨</div>
+            <span>구독 관리</span>
+          </div>
+          <span class="profile-row-arrow">›</span>
+        </div>
+      </div>
+
+      <div class="profile-section">
+        <div class="profile-section-title">앱 정보</div>
+        <div class="profile-row" onclick="showToast('RadiSafe v1.0.0')">
+          <div class="profile-row-left"><div class="profile-row-icon">ℹ️</div><span>앱 버전</span></div>
+          <span style="font-size:13px;color:#aaa;">v1.0.0 ›</span>
+        </div>
+        <div class="profile-row" onclick="showToast('개인정보처리방침 페이지 연결 예정')">
+          <div class="profile-row-left"><div class="profile-row-icon">🔒</div><span>개인정보처리방침</span></div>
+          <span class="profile-row-arrow">›</span>
+        </div>
+        <div class="profile-row" onclick="showToast('이용약관 페이지 연결 예정')">
+          <div class="profile-row-left"><div class="profile-row-icon">📄</div><span>이용약관</span></div>
+          <span class="profile-row-arrow">›</span>
+        </div>
+      </div>
+
+      <button onclick="logout()" style="width:100%;padding:14px;background:none;border:1.5px solid var(--border);border-radius:12px;font-size:15px;color:var(--danger);cursor:pointer;font-weight:600;">로그아웃</button>
+    </div>
+  </div>
+</div>
+
+<!-- ── Tab Bar ── -->
+<nav class="tab-bar">
+  <button class="tab-item active" onclick="goToTab('calc')" id="tab-calc">
+    <span class="tab-icon">🩻</span>계산기
+  </button>
+  <button class="tab-item" onclick="goToTab('records')" id="tab-records">
+    <span class="tab-icon">📅</span>내 기록
+  </button>
+  <button class="tab-item" onclick="goToTab('premium')" id="tab-premium">
+    <span class="tab-icon">✨</span>프리미엄
+  </button>
+  <button class="tab-item" onclick="goToTab('mypage')" id="tab-mypage">
+    <span class="tab-icon">👤</span>마이페이지
+  </button>
+</nav>
+
+<!-- ── Login Modal ── -->
+<div class="modal-bg" id="loginModal">
+  <div class="modal-sheet">
+    <div class="modal-handle"></div>
+    <div class="modal-title">로그인</div>
+    <div class="modal-sub">이메일로 간편하게 시작하세요</div>
+    <input class="input-field" type="email" id="loginEmail" placeholder="이메일" inputmode="email" autocomplete="email">
+    <input class="input-field" type="password" id="loginPassword" placeholder="비밀번호" autocomplete="current-password">
+    <button class="btn-full btn-primary" onclick="login()">로그인</button>
+    <div class="divider"><div class="divider-line"></div><span>또는</span><div class="divider-line"></div></div>
+    <button class="btn-full btn-kakao" onclick="showToast('카카오 로그인 연동 예정입니다')">
+      <span style="font-size:18px;">💬</span> 카카오로 계속하기
+    </button>
+    <button class="btn-full btn-naver" onclick="showToast('네이버 로그인 연동 예정입니다')">
+      <span style="font-weight:900;font-size:14px;">N</span> 네이버로 계속하기
+    </button>
+    <div style="text-align:center;font-size:13px;color:var(--text2);margin-top:10px;">
+      계정이 없으신가요? <a href="#" onclick="showToast('회원가입 페이지 연결 예정');return false;" style="color:var(--primary);font-weight:600;">회원가입</a>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════
+//  CONSTANTS & STATE
+// ═══════════════════════════════
+const K_FACTORS = {
+  head:0.0023, neck:0.0054, chest:0.017, abdomen:0.015,
+  pelvis:0.019, chest_abdomen:0.016, abdomen_pelvis:0.017,
+  whole:0.015, spine_lumbar:0.015
+};
+const REGION_NAMES = {
+  head:'🧠 머리', neck:'🫀 목', chest:'🫁 흉부', abdomen:'🫃 복부',
+  pelvis:'🦴 골반', chest_abdomen:'🩺 흉복부', abdomen_pelvis:'🔬 복골반',
+  whole:'🧍 전신', spine_lumbar:'🦷 요추'
+};
+
+let selectedRegion = null;
+let currentDose = null;
+let selectedPlanId = 'monthly';
+
+// Simulated state (replace with real auth/DB in production)
+let state = JSON.parse(localStorage.getItem('radisafe_state') || '{}');
+if (!state.history) state.history = [];
+if (!state.isPremium) state.isPremium = false;
+
+function saveState() { localStorage.setItem('radisafe_state', JSON.stringify(state)); }
+
+// ═══════════════════════════════
+//  NAVIGATION
+// ═══════════════════════════════
+function goToTab(tab) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab-item').forEach(t => t.classList.remove('active'));
+  document.getElementById('page-' + tab).classList.add('active');
+  document.getElementById('tab-' + tab).classList.add('active');
+  window.scrollTo(0, 0);
+  if (tab === 'records') renderRecords();
+  if (tab === 'mypage') renderMypage();
+}
+
+// ═══════════════════════════════
+//  CALCULATOR
+// ═══════════════════════════════
+function selectRegion(btn) {
+  document.querySelectorAll('.region-btn').forEach(b => b.classList.remove('selected'));
+  btn.classList.add('selected');
+  selectedRegion = btn.dataset.region;
+}
+
+function ageSensitivity(age) {
+  if (!age) return 1.0;
+  if (age <= 1) return 3.0; if (age <= 5) return 2.5;
+  if (age <= 10) return 2.0; if (age <= 15) return 1.5;
+  if (age <= 20) return 1.2; if (age >= 70) return 0.85;
+  return 1.0;
+}
+function sexSensitivity(sex, region) {
+  return (sex === 'female' && ['chest','chest_abdomen'].includes(region)) ? 1.12 : 1.0;
+}
+function sizeCorrection(w) {
+  if (!w) return 1.0;
+  if (w < 30) return 1.35; if (w < 50) return 1.15; if (w < 70) return 1.05;
+  if (w < 90) return 0.97; if (w < 110) return 0.91; return 0.87;
+}
+
+function calculate() {
+  const dlp    = parseFloat(document.getElementById('dlp').value);
+  const age    = parseInt(document.getElementById('age').value) || null;
+  const sex    = document.getElementById('sex').value;
+  const weight = parseFloat(document.getElementById('weight').value) || null;
+  const phases = parseInt(document.getElementById('phases').value) || 1;
+
+  if (!selectedRegion) { showToast('촬영 부위를 선택해 주세요'); return; }
+  if (!dlp || dlp <= 0) { showToast('DLP 값을 입력해 주세요'); return; }
+
+  const ed = Math.round(
+    dlp * K_FACTORS[selectedRegion] * phases
+    * ageSensitivity(age) * sexSensitivity(sex, selectedRegion) * sizeCorrection(weight)
+    * 100
+  ) / 100;
+
+  currentDose = { ed, region: selectedRegion, date: new Date().toISOString().split('T')[0] };
+  renderResult(ed, selectedRegion);
+}
+
+function renderResult(ed, region) {
+  const card = document.getElementById('resultCard');
+  card.style.display = 'block';
+  card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+
+  document.getElementById('doseValue').textContent = ed.toFixed(2);
+  const xr = Math.round(ed / 0.02);
+  const yp = (ed / 3.0 * 100).toFixed(0);
+  document.getElementById('doseEquiv').innerHTML =
+    `흉부 X선 <strong>${xr}회</strong> 분량 · 연간 자연방사선의 <strong>${yp}%</strong>`;
+
+  const ref = 20;
+  const pct = Math.min((ed / ref) * 100, 100);
+  const fill = document.getElementById('gaugeFill');
+  fill.style.width = pct + '%';
+  fill.className = 'gauge-fill ' + (pct < 30 ? 'gauge-safe' : pct < 70 ? 'gauge-warn' : 'gauge-danger');
+  document.getElementById('gaugePercent').textContent = pct.toFixed(1) + '%';
+  document.getElementById('gaugeNote').textContent = '기준: 방사선 종사자 연간 허용 20 mSv (WHO/ICRP)';
+
+  // Risk
+  const rc = document.getElementById('riskCard');
+  rc.className = 'risk-card';
+  let icon, title, desc;
+  if (ed < 2) {
+    rc.classList.add('risk-safe'); icon = '✅';
+    title = '안전한 수준';
+    desc = `${ed.toFixed(2)} mSv는 자연방사선(연 3 mSv)보다 낮습니다. 의학적으로 필요한 검사라면 걱정하지 않으셔도 됩니다.`;
+  } else if (ed < 10) {
+    rc.classList.add('risk-safe'); icon = '✅';
+    title = '통상적인 진단 범위';
+    desc = `${ed.toFixed(2)} mSv는 일반적인 CT 범위입니다. 얻는 진단 이익이 훨씬 크며, 연간 누적 추적을 권장합니다.`;
+  } else if (ed < 30) {
+    rc.classList.add('risk-warn'); icon = '⚠️';
+    title = '주의 권장';
+    desc = `${ed.toFixed(2)} mSv는 방사선 종사자 기준의 절반 이상입니다. 추가 촬영 전 의사와 필요성을 상의하세요.`;
+  } else {
+    rc.classList.add('risk-danger'); icon = '🚨';
+    title = '높은 선량 – 의사와 상의하세요';
+    desc = `${ed.toFixed(2)} mSv는 연간 허용 기준에 근접합니다. 검사 필요성을 반드시 담당 의사와 확인하십시오.`;
+  }
+  document.getElementById('riskIcon').textContent = icon;
+  document.getElementById('riskTitle').textContent = title;
+  document.getElementById('riskDesc').textContent = desc;
+
+  // Compare
+  const refs = [
+    {n:'흉부 X선', d:0.02}, {n:'국내 항공편', d:0.03},
+    {n:'유방촬영술', d:0.4}, {n:'연간 자연방사선', d:3.0},
+    {n:'종사자 연간 한도', d:20}
+  ];
+  const maxD = Math.max(ed, 20);
+  let html = `<div class="compare-row"><div class="compare-name" style="color:var(--primary);font-weight:700;">이번 CT</div><div class="compare-bar-wrap"><div class="compare-bar"><div class="compare-bar-fill" style="width:${Math.min(ed/maxD*100,100).toFixed(1)}%;background:var(--primary)"></div></div></div><div class="compare-val">${ed.toFixed(2)} mSv</div></div>`;
+  refs.forEach(r => {
+    html += `<div class="compare-row"><div class="compare-name">${r.n}</div><div class="compare-bar-wrap"><div class="compare-bar"><div class="compare-bar-fill" style="width:${Math.min(r.d/maxD*100,100).toFixed(1)}%"></div></div></div><div class="compare-val">${r.d} mSv</div></div>`;
+  });
+  document.getElementById('compareRows').innerHTML = html;
+
+  // Save CTA
+  document.getElementById('saveCtaFree').style.display = state.isPremium ? 'none' : 'block';
+  document.getElementById('saveCtaPremium').style.display = state.isPremium ? 'block' : 'none';
+}
+
+function saveToHistory() {
+  if (!currentDose) return;
+  state.history.unshift(currentDose);
+  saveState();
+  renderRecords();
+  showToast('✅ 기록에 저장했습니다');
+}
+
+// ═══════════════════════════════
+//  RECORDS
+// ═══════════════════════════════
+function renderRecords() {
+  if (!state.isPremium) {
+    document.getElementById('recordsGate').style.display = 'block';
+    document.getElementById('recordsPremium').style.display = 'none';
+    return;
+  }
+  document.getElementById('recordsGate').style.display = 'none';
+  document.getElementById('recordsPremium').style.display = 'block';
+  document.getElementById('recordsYear').textContent = new Date().getFullYear();
+
+  const total = state.history.reduce((s, h) => s + h.ed, 0);
+  const ref = 20;
+  const pct = Math.min(total / ref * 100, 100);
+  document.getElementById('annualSummary').textContent = `${total.toFixed(2)} / ${ref} mSv`;
+  const bar = document.getElementById('annualBarFill');
+  bar.style.width = pct + '%';
+  bar.textContent = pct.toFixed(0) + '%';
+  document.getElementById('annualRemaining').innerHTML =
+    `올해 추가 안전 선량: <strong>${Math.max(ref - total, 0).toFixed(2)} mSv</strong>`;
+
+  const list = document.getElementById('historyList');
+  if (!state.history.length) {
+    list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text2);font-size:14px;">아직 저장된 기록이 없습니다.<br>계산기에서 결과를 저장해보세요 😊</div>';
+    return;
+  }
+  list.innerHTML = state.history.map(h =>
+    `<div class="history-item">
+      <div><div class="history-region">${REGION_NAMES[h.region]||h.region}</div><div class="history-date">${h.date}</div></div>
+      <div class="history-dose">${h.ed.toFixed(2)} mSv</div>
+    </div>`
+  ).join('');
+}
+
+// ═══════════════════════════════
+//  MYPAGE
+// ═══════════════════════════════
+function renderMypage() {
+  const hasUser = !!state.user;
+  document.getElementById('mypageGuest').style.display = hasUser ? 'none' : 'block';
+  document.getElementById('mypageUser').style.display  = hasUser ? 'block' : 'none';
+  if (hasUser) {
+    document.getElementById('userEmailDisplay').textContent = state.user.email;
+    if (state.isPremium) {
+      document.getElementById('subBadge').textContent = '✨ 프리미엄';
+      document.getElementById('subStatusTitle').textContent = '프리미엄 사용 중';
+      document.getElementById('subStatusDesc').textContent = '연간 선량 추적과 모든 기능을 사용할 수 있습니다';
+      document.getElementById('headerPremiumBtn').textContent = '✅ 프리미엄';
+      document.getElementById('headerPremiumBtn').style.background = 'rgba(255,255,255,0.2)';
+    }
+  }
+}
+
+function showLoginModal() { document.getElementById('loginModal').classList.add('active'); }
+function hideLoginModal() { document.getElementById('loginModal').classList.remove('active'); }
+
+function login() {
+  const email = document.getElementById('loginEmail').value.trim();
+  const pw    = document.getElementById('loginPassword').value;
+  if (!email || !pw) { showToast('이메일과 비밀번호를 입력해 주세요'); return; }
+  // Simulate login (replace with real auth API call)
+  state.user = { email };
+  saveState();
+  hideLoginModal();
+  renderMypage();
+  showToast('✅ 로그인 되었습니다');
+}
+
+function logout() {
+  state.user = null;
+  saveState();
+  renderMypage();
+  showToast('로그아웃 되었습니다');
+}
+
+// ═══════════════════════════════
+//  PREMIUM MODAL (quick upsell)
+// ═══════════════════════════════
+function showPremiumModal() { goToTab('premium'); }
+
+// ═══════════════════════════════
+//  PAYMENT (Toss Payments)
+// ═══════════════════════════════
+// ⚠️  프로덕션 배포 시: 아래 clientKey를 토스페이먼츠 대시보드에서 발급한 실제 키로 교체하세요.
+// 테스트 키: test_ck_... / 실제 키: live_ck_...
+// https://developers.tosspayments.com
+const TOSS_CLIENT_KEY = 'test_ck_D5GePWvyJnrK0W0k6q8gLzN97Eld'; // ← 실제 키로 교체 필요
+const TOSS_CUSTOMER_KEY = generateCustomerKey();
+
+function generateCustomerKey() {
+  let k = localStorage.getItem('radisafe_ckey');
+  if (!k) { k = 'RS-' + Math.random().toString(36).slice(2,10).toUpperCase(); localStorage.setItem('radisafe_ckey', k); }
+  return k;
+}
+
+let paymentWidget = null;
+
+function selectPlan(planId) {
+  selectedPlanId = planId;
+  document.querySelectorAll('.plan-card').forEach(c => c.classList.remove('recommended'));
+  document.getElementById('plan-' + planId).classList.add('recommended');
+}
+
+async function startPayment() {
+  if (!state.user) {
+    showToast('결제 전 로그인이 필요합니다');
+    setTimeout(() => showLoginModal(), 800);
+    return;
+  }
+  const btn = document.getElementById('payBtn');
+  btn.textContent = '⏳ 결제창 준비 중...';
+  btn.disabled = true;
+
+  try {
+    // Initialize Toss Payments widget
+    paymentWidget = await TossPayments(TOSS_CLIENT_KEY).widgets({ customerKey: TOSS_CUSTOMER_KEY });
+
+    const amount = selectedPlanId === 'yearly' ? 30000 : 3900;
+
+    await paymentWidget.setAmount({ currency: 'KRW', value: amount });
+    await Promise.all([
+      paymentWidget.renderPaymentMethods({
+        selector: '#payment-method',
+        variantKey: 'DEFAULT'
+      }),
+      paymentWidget.renderAgreement({
+        selector: '#agreement',
+        variantKey: 'AGREEMENT'
+      })
+    ]);
+
+    document.getElementById('payment-widget-container').style.display = 'block';
+    document.getElementById('payment-widget-container').scrollIntoView({ behavior: 'smooth' });
+  } catch (e) {
+    console.error('Toss init error:', e);
+    // Fallback: demo mode for testing without real keys
+    showDemoPayment();
+  } finally {
+    btn.textContent = '🔒 안전하게 시작하기';
+    btn.disabled = false;
+  }
+}
+
+async function confirmPayment() {
+  if (!paymentWidget) return;
+  try {
+    const amount    = selectedPlanId === 'yearly' ? 30000 : 3900;
+    const orderId   = 'RS-' + Date.now();
+    const orderName = selectedPlanId === 'yearly' ? 'RadiSafe 프리미엄 연간' : 'RadiSafe 프리미엄 월간';
+
+    await paymentWidget.requestPayment({
+      orderId, orderName,
+      customerName: state.user?.email || '고객',
+      customerEmail: state.user?.email || '',
+      // successUrl/failUrl: 실제 서버 엔드포인트로 교체하세요
+      successUrl: window.location.origin + window.location.pathname + '?payment=success',
+      failUrl:    window.location.origin + window.location.pathname + '?payment=fail'
+    });
+  } catch (e) {
+    if (e.code !== 'USER_CANCEL') showToast('결제 오류: ' + (e.message || '다시 시도해 주세요'));
+  }
+}
+
+function cancelPayment() {
+  document.getElementById('payment-widget-container').style.display = 'none';
+  paymentWidget = null;
+}
+
+// Demo payment (for testing without Toss keys)
+function showDemoPayment() {
+  const container = document.getElementById('payment-widget-container');
+  container.style.display = 'block';
+  document.getElementById('payment-method').innerHTML = `
+    <div style="background:var(--bg);border-radius:12px;padding:16px;text-align:center;border:1.5px dashed var(--border);">
+      <div style="font-size:13px;color:var(--text2);margin-bottom:12px;">🧪 테스트 모드 (실제 결제 안 됨)</div>
+      <div style="font-size:15px;font-weight:700;">토스페이먼츠 위젯이 여기 표시됩니다</div>
+      <div style="font-size:12px;color:#aaa;margin-top:6px;">실제 배포 시 TOSS_CLIENT_KEY를<br>발급된 키로 교체하면 활성화됩니다</div>
+    </div>`;
+  document.getElementById('agreement').innerHTML = '';
+  // Override confirm for demo
+  document.querySelector('#payment-widget-container button').onclick = activatePremiumDemo;
+}
+
+function activatePremiumDemo() {
+  state.isPremium = true;
+  saveState();
+  cancelPayment();
+  renderMypage();
+  renderRecords();
+  document.getElementById('saveCtaFree').style.display = 'none';
+  document.getElementById('saveCtaPremium').style.display = 'block';
+  showToast('✨ 프리미엄이 활성화되었습니다!');
+  setTimeout(() => goToTab('records'), 1200);
+}
+
+// Handle payment result from URL params
+function checkPaymentResult() {
+  const params = new URLSearchParams(window.location.search);
+  const result = params.get('payment');
+  if (result === 'success') {
+    state.isPremium = true;
+    saveState();
+    renderMypage();
+    showToast('✨ 결제 완료! 프리미엄이 활성화되었습니다');
+    history.replaceState({}, '', window.location.pathname);
+  } else if (result === 'fail') {
+    showToast('결제에 실패했습니다. 다시 시도해 주세요');
+    history.replaceState({}, '', window.location.pathname);
+  }
+}
+
+// ═══════════════════════════════
+//  TOAST
+// ═══════════════════════════════
+let toastTimer;
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(() => t.classList.remove('show'), 2400);
+}
+
+// ═══════════════════════════════
+//  INIT
+// ═══════════════════════════════
+checkPaymentResult();
+renderMypage();
+renderRecords();
+if (state.isPremium) {
+  document.getElementById('headerPremiumBtn').textContent = '✅ 프리미엄';
+  document.getElementById('headerPremiumBtn').style.background = 'rgba(255,255,255,0.2)';
+}
+</script>
+</body>
+</html>
