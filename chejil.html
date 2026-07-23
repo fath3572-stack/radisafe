@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>나의 체질 생활 가이드</title>
+<style>
+  :root{
+    --bg:#f6f4ef; --card:#ffffff; --ink:#2b2a26; --sub:#6b675e;
+    --accent:#3d7a5f; --accent2:#c96f4a; --line:#e5e1d8; --soft:#eef4f0;
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body{font-family:'Apple SD Gothic Neo','Malgun Gothic','Noto Sans KR',sans-serif;
+    background:var(--bg); color:var(--ink); line-height:1.65; padding:24px 16px;}
+  .wrap{max-width:720px; margin:0 auto;}
+  .card{background:var(--card); border:1px solid var(--line); border-radius:16px;
+    padding:28px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,.04);}
+  h1{font-size:1.5rem; margin-bottom:6px;}
+  h2{font-size:1.15rem; margin-bottom:12px; color:var(--accent);}
+  h3{font-size:1rem; margin:18px 0 6px;}
+  .sub{color:var(--sub); font-size:.92rem;}
+  .badge{display:inline-block; background:var(--soft); color:var(--accent);
+    border-radius:20px; padding:2px 12px; font-size:.8rem; margin-bottom:10px;}
+  button{font:inherit; cursor:pointer; border:none; border-radius:10px;}
+  .btn{background:var(--accent); color:#fff; padding:12px 28px; font-size:1rem; font-weight:600;}
+  .btn:disabled{background:#c8c4ba; cursor:not-allowed;}
+  .btn-ghost{background:transparent; color:var(--sub); padding:12px 18px;}
+  .row{display:flex; gap:12px; flex-wrap:wrap; margin-bottom:14px;}
+  .field{flex:1; min-width:150px;}
+  label{font-size:.88rem; font-weight:600; display:block; margin-bottom:4px;}
+  select,input[type=text],input[type=number]{width:100%; padding:10px; border:1px solid var(--line);
+    border-radius:10px; font:inherit; background:#fff;}
+  .q{margin-bottom:22px;}
+  .q p{font-weight:600; margin-bottom:8px;}
+  .opt{display:block; border:1px solid var(--line); border-radius:10px;
+    padding:10px 14px; margin-bottom:6px; cursor:pointer; font-size:.95rem; transition:.15s;}
+  .opt:hover{border-color:var(--accent);}
+  .opt.sel{border-color:var(--accent); background:var(--soft); font-weight:600;}
+  .likert{display:flex; gap:6px; flex-wrap:wrap;}
+  .lk{flex:1; min-width:56px; text-align:center; border:1px solid var(--line);
+    border-radius:8px; padding:8px 4px; font-size:.78rem; cursor:pointer; transition:.15s;}
+  .lk:hover{border-color:var(--accent);}
+  .lk.sel{border-color:var(--accent); background:var(--soft); font-weight:700;}
+  .progress{height:6px; background:var(--line); border-radius:3px; margin-bottom:20px; overflow:hidden;}
+  .progress i{display:block; height:100%; background:var(--accent); width:0; transition:.3s;}
+  .bar-row{display:flex; align-items:center; gap:10px; margin-bottom:6px; font-size:.9rem;}
+  .bar-row b{width:64px;}
+  .bar{flex:1; height:14px; background:var(--line); border-radius:7px; overflow:hidden;}
+  .bar i{display:block; height:100%; background:var(--accent); border-radius:7px;}
+  .bar i.hot{background:var(--accent2);}
+  .tag{display:inline-block; background:#fdf0e9; color:var(--accent2);
+    border-radius:8px; padding:2px 10px; font-size:.82rem; margin:2px 4px 2px 0;}
+  ul{padding-left:20px; margin:6px 0;}
+  li{margin-bottom:5px; font-size:.95rem;}
+  .note{background:#fbf7ec; border:1px solid #eadfc2; border-radius:10px;
+    padding:12px 14px; font-size:.85rem; color:#7a6a3e; margin-top:16px;}
+  .hidden{display:none;}
+  .center{text-align:center;}
+  .result-head{text-align:center; padding:10px 0 18px;}
+  .result-head .type{font-size:2rem; font-weight:800; color:var(--accent);}
+  footer{text-align:center; color:var(--sub); font-size:.8rem; margin-top:24px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- STEP 0 : 인트로 -->
+  <div class="card" id="step0">
+    <span class="badge">나의 체질 생활 가이드</span>
+    <h1>내 몸과 성격에 맞는<br>건강한 삶의 행동요령</h1>
+    <p class="sub" style="margin:10px 0 20px">
+      이제마의 원전 <b>「동의수세보원」·「격치고」</b>와
+      사상체질 설문(한국한의학연구원 <b>KS-15</b> 구조 참고: 체형·성격·소증·성정),
+      중국 중의학 <b>9체질(CCMQ 방식)</b>, 아유르베다 도샤, MBTI를 함께 참고하여
+      <b>음식 · 대인관계 태도 · 생활방식 · 인생 목표설정</b> 가이드를 만들어 드립니다.
+    </p>
+    <button class="btn" onclick="go(1)">시작하기</button>
+    <div class="note">이 앱은 검증된 설문(KS-15, CCMQ)의 <b>구조를 참고해 재구성한 참고용 도구</b>로,
+      원 설문 및 의학적 진단을 대신하지 않습니다. 혈액형 성격론은 과학적 근거가 없는
+      재미 참고 항목입니다.</div>
+  </div>
+
+  <!-- STEP 1 : 기본정보 -->
+  <div class="card hidden" id="step1">
+    <h2>1단계 · 기본 정보</h2>
+    <div class="row">
+      <div class="field"><label>이름 (선택)</label>
+        <input type="text" id="inName" placeholder="예: 창호"></div>
+      <div class="field"><label>키 (cm)</label>
+        <input type="number" id="inHeight" placeholder="예: 170"></div>
+      <div class="field"><label>몸무게 (kg)</label>
+        <input type="number" id="inWeight" placeholder="예: 65"></div>
+    </div>
+    <div class="row">
+      <div class="field"><label>연령대</label>
+        <select id="inAge">
+          <option value="">선택 안 함</option>
+          <option>10대</option><option>20대</option><option>30대</option>
+          <option>40대</option><option>50대</option><option>60대 이상</option>
+        </select></div>
+      <div class="field"><label>성별</label>
+        <select id="inGender">
+          <option value="">선택 안 함</option>
+          <option>여성</option><option>남성</option>
+        </select></div>
+    </div>
+    <p class="sub" style="margin:-6px 0 12px">※ 연령대·성별에 따라 건강 관리 포인트와 목표설정 조언이 달라집니다.</p>
+    <p class="sub" style="margin:-6px 0 12px">※ 키·몸무게는 체형(BMI) 판정에 쓰입니다. 사상체질 감별에서 체형은 중요한 지표입니다.</p>
+    <div class="row">
+      <div class="field"><label>혈액형 (재미 참고)</label>
+        <select id="inBlood">
+          <option value="">모름/선택 안 함</option>
+          <option>A</option><option>B</option><option>O</option><option>AB</option>
+        </select></div>
+      <div class="field"><label>MBTI</label>
+        <select id="inMbti"><option value="">모름/선택 안 함</option></select>
+        <button class="btn-ghost" style="padding:6px 0; font-size:.85rem; color:var(--accent); text-decoration:underline"
+          onclick="go('M')">내 MBTI를 몰라요 → 간단 검사하기 (12문항)</button></div>
+    </div>
+    <div class="center" style="margin-top:14px">
+      <button class="btn-ghost" onclick="go(0)">← 이전</button>
+      <button class="btn" onclick="go(2)">다음 → 사상체질 문진</button>
+    </div>
+  </div>
+
+  <!-- STEP M : MBTI 간이 검사 -->
+  <div class="card hidden" id="stepM">
+    <h2>MBTI 간이 검사 (12문항)</h2>
+    <p class="sub" style="margin-bottom:14px">둘 중 나에게 더 가까운 쪽을 골라 주세요. 정답은 없습니다.</p>
+    <div class="progress"><i id="mpbar"></i></div>
+    <div id="mqbox"></div>
+    <div class="center">
+      <button class="btn-ghost" onclick="go(1)">← 이전</button>
+      <button class="btn" id="btnMbti" disabled onclick="finishMbti()">내 MBTI 확인</button>
+    </div>
+    <div class="note">이 검사는 4가지 선호 경향을 빠르게 가늠하는 간이 버전입니다.
+      더 정확한 결과를 원하시면 정식 MBTI 검사(어세스타 등 공인기관)를 이용해 보세요.
+      정식 검사는 Form M 93문항, Form Q 144문항입니다.</div>
+  </div>
+
+  <!-- STEP 2 : 사상체질 문진 (KS-15 구조 참고) -->
+  <div class="card hidden" id="step2">
+    <h2>2단계 · 사상체질 문진 (17문항 + 체형)</h2>
+    <p class="sub" style="margin-bottom:14px">
+      한국한의학연구원 KS-15의 구조(체형·성격·소증)와 이제마의 원전
+      「동의수세보원」 사단론·확충론의 성정(性情) 이론을 참고했습니다.
+      평소의 나와 가장 가까운 것을 골라 주세요.</p>
+    <div class="progress"><i id="pbar"></i></div>
+    <div id="qbox"></div>
+    <div class="center">
+      <button class="btn-ghost" onclick="go(1)">← 이전</button>
+      <button class="btn" id="btnNext2" disabled onclick="go('B')">다음 → 9체질 문진</button>
+    </div>
+  </div>
+
+  <!-- STEP B : 중의 9체질 문진 (CCMQ 방식) -->
+  <div class="card hidden" id="stepB">
+    <h2>3단계 · 중의 9체질 문진 (16문항)</h2>
+    <p class="sub" style="margin-bottom:14px">
+      중국 표준 체질설문 CCMQ의 방식을 참고했습니다.
+      <b>최근 1년간</b>의 몸 상태를 기준으로 답해 주세요.</p>
+    <div class="progress"><i id="bpbar"></i></div>
+    <div id="bqbox"></div>
+    <div class="center">
+      <button class="btn-ghost" onclick="go(2)">← 이전</button>
+      <button class="btn" id="btnResult" disabled onclick="showResult()">결과 보기</button>
+    </div>
+  </div>
+
+  <!-- STEP 3 : 결과 -->
+  <div class="card hidden" id="step3"><div id="result"></div>
+    <div class="center" style="margin-top:20px">
+      <button class="btn" onclick="location.reload()">다시 하기</button>
+      <button class="btn-ghost" onclick="window.print()">인쇄/저장</button>
+    </div>
+  </div>
+
+  <footer>본 가이드는 참고용입니다 · 건강 이상이 있을 때는 반드시 의료 전문가와 상담하세요</footer>
+</div>
+
+<script>
+/* ================= 사상체질 문진 (KS-15 구조 참고: 성격 5 + 소증 9, 체형은 BMI) ================= */
+const Q = [
+ /* --- 성격 5문항 --- */
+ {q:"1. [성격] 나의 기본 성향은?", o:[
+  ["직설적이고 비판적이며 진취적이다",{s:"태양"}],
+  ["급하고 활동적이며 외향적이다",{s:"소양",d:"pitta"}],
+  ["과묵하고 듬직하다는 말을 듣는다",{s:"태음",d:"kapha"}],
+  ["내성적이고 섬세하다",{s:"소음",d:"vata"}]]},
+ {q:"2. [성격] 일하는 스타일은?", o:[
+  ["새 판을 짜는 것을 좋아하고 반복을 싫어한다",{s:"태양"}],
+  ["일을 잘 벌이지만 마무리가 아쉽다",{s:"소양"}],
+  ["시작은 느려도 끝까지 해낸다",{s:"태음"}],
+  ["신중하게 계획을 세운 후에만 시작한다",{s:"소음"}]]},
+ {q:"3. [성격] 감정은 어떤 편인가요?", o:[
+  ["불의를 보면 참지 못하고 분노가 강하다",{s:"태양"}],
+  ["화가 잘 나지만 금방 풀린다",{s:"소양",d:"pitta"}],
+  ["감정을 잘 드러내지 않는다",{s:"태음"}],
+  ["걱정이 많고 오래 마음에 남는다",{s:"소음",d:"vata"}]]},
+ {q:"4. [성격] 대인관계는?", o:[
+  ["사람들을 이끄는 편이고 지는 것을 싫어한다",{s:"태양"}],
+  ["처음 보는 사람과도 쉽게 친해진다",{s:"소양"}],
+  ["낯을 가리지만 한번 맺은 인연은 오래 간다",{s:"태음"}],
+  ["친한 소수와 깊게 지낸다",{s:"소음"}]]},
+ {q:"5. [성격] 말과 행동의 속도는?", o:[
+  ["결단이 빠르고 말이 명확·단정적이다",{s:"태양"}],
+  ["말과 행동이 빠르다",{s:"소양"}],
+  ["느긋하고 진중하다",{s:"태음",d:"kapha"}],
+  ["조심스럽고 조용하다",{s:"소음"}]]},
+ /* --- 소증 9문항 --- */
+ {q:"6. [몸] 땀은 어떤 편인가요?", o:[
+  ["땀이 적고 얼굴로 열이 오르는 느낌이 있다",{s:"태양"}],
+  ["땀이 많고 더위를 잘 탄다",{s:"소양",d:"pitta"}],
+  ["조금만 움직여도 땀이 나고, 흘리면 개운하다",{s:"태음",d:"kapha"}],
+  ["땀이 별로 없고, 많이 흘리면 오히려 지친다",{s:"소음"}]]},
+ {q:"7. [몸] 대변은 어떤 편인가요?", o:[
+  ["변비와 무른 변이 불규칙하게 반복된다",{s:"태양",d:"vata"}],
+  ["하루라도 못 보면 답답하고 몸이 힘들다",{s:"소양"}],
+  ["굵고 시원하게 잘 보는 편이다",{s:"태음"}],
+  ["무르거나 설사가 잦다",{s:"소음"}]]},
+ {q:"8. [몸] 소화는 어떤가요?", o:[
+  ["기름진 음식을 먹으면 속이 불편하거나 메스껍다",{s:"태양"}],
+  ["소화가 빨라 금방 배가 고프다",{s:"소양",d:"pitta"}],
+  ["뭐든 잘 먹지만 과식하면 몸이 무거워진다",{s:"태음",d:"kapha"}],
+  ["소화가 약하고 찬 음식을 먹으면 배탈이 잘 난다",{s:"소음",d:"vata"}]]},
+ {q:"9. [몸] 추위·더위는?", o:[
+  ["상체는 덥고 다리는 힘이 없거나 차다",{s:"태양"}],
+  ["더위를 잘 타고 찬 것을 좋아한다",{s:"소양",d:"pitta"}],
+  ["둘 다 무난하지만 몸이 잘 붓는다",{s:"태음"}],
+  ["추위를 잘 타고 손발이 차다",{s:"소음",d:"vata"}]]},
+ {q:"10. [몸] 물은 어떻게 마시나요?", o:[
+  ["물을 마셔도 갈증이 남는 느낌이 있다",{s:"태양"}],
+  ["찬물을 벌컥벌컥 자주 마신다",{s:"소양",d:"pitta"}],
+  ["물을 많이 마시는 편이다",{s:"태음"}],
+  ["따뜻한 물이 좋고 많이 마시지 않는다",{s:"소음"}]]},
+ {q:"11. [몸] 식사 습관은?", o:[
+  ["담백한 음식 위주로 소식한다",{s:"태양"}],
+  ["빨리, 급하게 먹는 편이다",{s:"소양"}],
+  ["식욕이 왕성하고 잘 먹는다",{s:"태음",d:"kapha"}],
+  ["입이 짧고 조금 먹는다",{s:"소음",d:"vata"}]]},
+ {q:"12. [몸] 평소 컨디션은?", o:[
+  ["다리에 힘이 없고 오래 걷기 힘들 때가 있다",{s:"태양"}],
+  ["얼굴이 화끈거리거나 상체에 열이 오른다",{s:"소양"}],
+  ["몸이 무겁고 잘 붓고 나른하다",{s:"태음",d:"kapha"}],
+  ["쉽게 지치고 기운이 없다",{s:"소음"}]]},
+ {q:"13. [몸] 잠은 어떤가요?", o:[
+  ["꿈이 많고 잠이 얕다",{s:"태양"}],
+  ["잠을 좀 못 자도 비교적 쌩쌩하다",{s:"소양"}],
+  ["눕자마자 자고 많이 자는 편이다",{s:"태음",d:"kapha"}],
+  ["예민해서 잘 못 들거나 자주 깬다",{s:"소음",d:"vata"}]]},
+ {q:"14. [몸] 스트레스를 받으면 몸은?", o:[
+  ["목·머리로 열이 오르고 언성이 높아진다",{s:"태양"}],
+  ["가슴이 답답하고 활동으로 풀어야 한다",{s:"소양"}],
+  ["먹거나 자면서 풀고 몸이 처진다",{s:"태음"}],
+  ["체하거나 소화가 안 되고 속으로 삭인다",{s:"소음"}]]},
+ /* --- 성정 3문항 (「동의수세보원」 사단론·확충론 참고) --- */
+ {q:"15. [성정] 평소 마음 깊은 곳에 자리한 감정은? (동의수세보원 '항심')", o:[
+  ["일이 뜻대로 안 되면 조급함이 치민다",{s:"태양"}],
+  ["무언가 잘못될까 하는 두려움이 있다",{s:"소양"}],
+  ["새로운 일·낯선 곳이 겁나고 익숙한 자리가 좋다",{s:"태음"}],
+  ["마음이 늘 안정되지 못하고 안심이 잘 안 된다",{s:"소음",d:"vata"}]]},
+ {q:"16. [성정] 나는 어떤 일에 능한가요? (동의수세보원 '성질재간')", o:[
+  ["낯선 사람과 소통하며 새 길을 여는 일",{s:"태양"}],
+  ["밖에서 일을 추진하고 성사시키는 일",{s:"소양"}],
+  ["한자리에서 꾸준히 이루고 지키는 일",{s:"태음"}],
+  ["사람들을 아우르며 내실을 챙기는 일",{s:"소음"}]]},
+ {q:"17. [성정] 나의 감정의 결은? (동의수세보원 '사단론')", o:[
+  ["세상 일에 대한 근심이 크고, 분노가 급하게 치솟는다",{s:"태양"}],
+  ["불의에 대한 분노가 크고, 슬픔이 갑자기 밀려온다",{s:"소양"}],
+  ["기쁨을 넓게 누리고, 즐거움에 빠져들기 쉽다",{s:"태음"}],
+  ["잔잔한 즐거움을 깊이 간직하고, 기쁨에 들뜨기 쉽다",{s:"소음"}]]}
+];
+
+/* ================= 중의 9체질 문진 (CCMQ 방식 참고: 병리 8체질 × 2문항, 5점 척도) ================= */
+const BQ = [
+ {t:"기허",q:"1. 특별한 이유 없이 쉽게 피로해진다."},
+ {t:"기허",q:"2. 말할 기운이 없거나 목소리에 힘이 없다는 말을 듣는다."},
+ {t:"양허",q:"3. 손발이 차다."},
+ {t:"양허",q:"4. 남들보다 추위를 많이 타고, 찬 음식을 먹으면 속이 불편하다."},
+ {t:"음허",q:"5. 손바닥·발바닥이 뜨겁거나 오후에 열감이 오른다."},
+ {t:"음허",q:"6. 입과 목이 자주 마른다."},
+ {t:"담습",q:"7. 몸이 무겁고 잘 붓는다."},
+ {t:"담습",q:"8. 가슴이 답답하거나 뱃살이 잘 붙고 가래가 잘 낀다."},
+ {t:"습열",q:"9. 얼굴이나 코가 기름져 번들거린다."},
+ {t:"습열",q:"10. 입이 쓰거나 여드름·염증이 잘 생긴다."},
+ {t:"혈어",q:"11. 부딪히지 않아도 멍이 잘 들거나 멍이 오래 간다."},
+ {t:"혈어",q:"12. 피부색이 칙칙하고 다크서클이 짙거나, 통증이 한 곳에 고정되어 나타난다."},
+ {t:"기울",q:"13. 이유 없이 우울하거나 한숨을 자주 쉰다."},
+ {t:"기울",q:"14. 사소한 일에 예민하고, 목에 뭔가 걸린 듯한 느낌이 있다."},
+ {t:"특품",q:"15. 두드러기·비염·천식 등 알레르기가 잘 생긴다."},
+ {t:"특품",q:"16. 약·음식·계절 변화에 남들보다 민감하게 반응한다."}
+];
+const LIKERT=["전혀 아니다","가끔 그렇다","때때로 그렇다","자주 그렇다","항상 그렇다"];
+
+/* ================= 사상체질 콘텐츠 ================= */
+const SASANG = {
+ 태양: {intro:"폐(肺) 기운이 강하고 간(肝) 기운이 약한 체질. 창의적이고 결단력 있으며 위로 뻗치는 기운이 강합니다. 한국인 중 가장 드문 체질입니다.",
+  food:{good:"메밀, 냉면, 포도, 머루, 다래, 감, 앵두, 조개류·새우·문어 등 담백한 해산물, 채소류, 모과차",
+   bad:"기름지고 맵고 뜨거운 음식, 고칼로리 육류(특히 쇠고기·닭고기 과다), 술, 인공조미료",
+   tip:"담백하고 서늘한 성질의 음식이 몸을 편안하게 합니다. 화를 돋우는 자극적 음식은 상기된 기운을 더 위로 끌어올립니다."},
+  people:["직설적인 화법이 강점이자 부담이 될 수 있으니, 결론을 말하기 전에 상대의 이야기를 끝까지 듣는 습관을 들이세요.",
+   "옳고 그름의 잣대를 사람에게 그대로 적용하면 관계가 좁아집니다. '다름'을 틀림이 아닌 개성으로 받아들이세요.",
+   "소수의 깊은 관계가 잘 맞습니다. 넓은 인맥보다 신뢰 기반의 관계에 에너지를 쓰세요."],
+  life:["기운이 위로 몰리는 체질이라 하체 운동(걷기, 등산, 스쿼트)이 특히 중요합니다.",
+   "분노는 태양인의 건강을 가장 크게 해칩니다. 화가 오를 때 심호흡·산책 등 '내리는' 루틴을 만드세요.",
+   "과로와 음주는 간을 상하게 하니 절제가 곧 보약입니다."],
+  goal:["큰 비전과 독창적 아이디어가 강점이므로, 남이 안 가는 길을 여는 일·창의적 기획이 잘 맞습니다.",
+   "다만 추진력이 마무리로 이어지도록, 목표를 세울 때 '함께 완성해 줄 파트너'나 점검 장치를 반드시 넣으세요.",
+   "성급한 큰 승부보다 3년 단위의 긴 호흡으로 계획하면 실패 확률이 크게 줄어듭니다."]},
+ 소양: {intro:"비(脾) 기운이 강하고 신(腎) 기운이 약한 체질. 몸에 열이 많고 민첩하며, 밝고 적극적인 에너지가 특징입니다.",
+  food:{good:"돼지고기, 오리고기, 해삼·전복·굴 등 해산물, 오이, 배추, 수박, 참외, 딸기, 보리, 녹두, 산수유차·구기자차",
+   bad:"맵고 뜨거운 자극적 음식(고추, 생강, 마늘 과다), 닭고기·개고기 등 열성 음식, 술",
+   tip:"몸의 열을 식혀주는 서늘한 성질의 음식이 잘 맞습니다. 화끈하고 매운 음식은 순간 시원해도 속열을 키웁니다."},
+  people:["시원시원한 성격으로 사람을 잘 사귀지만, 말이 앞서 실수할 수 있으니 민감한 주제일수록 한 박자 쉬고 말하세요.",
+   "남의 일에 발 벗고 나서는 장점이 있지만, 정작 내 일과 가족을 뒤로 미루지 않는지 주기적으로 점검하세요.",
+   "갈등이 생기면 금방 풀리는 편이니, 상대는 아직 안 풀렸을 수 있음을 기억하고 회복의 시간을 주세요."],
+  life:["신장·하체가 약점이므로 하체 근력 운동과 충분한 수분 섭취가 중요합니다.",
+   "밤샘·과로는 음(陰)을 소모시켜 상열감·불면으로 이어집니다. 수면 시간을 최우선으로 지키세요.",
+   "흥분과 조급함이 병의 뿌리가 되니, 명상·요가처럼 속도를 늦추는 활동을 하나 두세요."],
+  goal:["새로운 일을 벌이는 추진력이 최고 강점입니다. 기획·영업·창업 등 '시작'이 중요한 일에 유리합니다.",
+   "약점은 마무리이므로 목표는 잘게 쪼개 단기 성과를 자주 확인하는 방식이 좋습니다.",
+   "'끝맺음 체크리스트'와 루틴을 시스템으로 만들어 두면 지속력이 크게 좋아집니다."]},
+ 태음: {intro:"간(肝) 기운이 강하고 폐(肺) 기운이 약한 체질. 체격이 좋고 끈기와 포용력이 있습니다. 한국인에게 가장 흔한 체질입니다.",
+  food:{good:"쇠고기, 우유, 콩·두부, 밤, 잣, 호두, 무, 도라지, 연근, 마, 배, 율무차·칡차",
+   bad:"과식·야식, 기름진 튀김류, 술, 단 음식과 밀가루 과다",
+   tip:"흡수력이 좋아 살이 잘 찌는 체질입니다. '무엇을 먹느냐'만큼 '얼마나 먹느냐'가 중요하며, 폐를 돕는 뿌리채소·견과류가 잘 맞습니다."},
+  people:["듬직하고 포용력이 있지만 속마음을 잘 드러내지 않아 오해를 살 수 있습니다. 고마움·미안함은 그때그때 말로 표현하세요.",
+   "변화를 싫어해 관계도 익숙한 사람에게만 머물기 쉽습니다. 새로운 모임에 의식적으로 한 발 들여놓으세요.",
+   "묵묵히 참다가 한 번에 터뜨리는 경향이 있으니, 불만은 쌓이기 전에 작게 자주 이야기하세요."],
+  life:["땀을 흠뻑 내는 유산소 운동(달리기, 등산, 사우나 병행)이 최고의 보약입니다.",
+   "호흡기가 약점이므로 금연은 필수이고, 심폐 기능을 키우는 운동을 꾸준히 하세요.",
+   "게으름과 축적(살·피로·물건)이 병의 씨앗이 됩니다. '움직임'을 기본값으로 만드세요."],
+  goal:["끈기가 최고 강점이므로 오래 걸리는 큰 목표(전문성 축적, 장기 프로젝트, 자산 형성)에 가장 유리한 체질입니다.",
+   "다만 시작이 늦는 편이니 '완벽한 준비'를 기다리지 말고 70% 준비되면 착수하는 원칙을 세우세요.",
+   "1년에 한 번은 익숙한 영역 밖의 새로운 도전을 목표에 포함시키세요. 정체가 태음인의 가장 큰 적입니다."]},
+ 소음: {intro:"신(腎) 기운이 강하고 비(脾) 기운이 약한 체질. 소화기가 약하고 몸이 찬 편이지만, 섬세하고 치밀하며 정확합니다.",
+  food:{good:"닭고기, 양고기, 미꾸라지, 찹쌀, 감자, 시금치, 미나리, 사과, 귤, 대추, 생강차·계피차·인삼차",
+   bad:"찬 음식(냉면, 빙수, 차가운 우유, 생맥주), 날 음식(회 과다), 돼지고기, 밀가루, 참외·수박 과다",
+   tip:"속을 따뜻하게 하는 음식이 보약입니다. 아무리 좋은 음식도 차게 먹으면 독이 되니 '따뜻하게, 조금씩, 규칙적으로'가 원칙입니다."},
+  people:["세심하게 배려하는 강점이 있지만 그만큼 서운함도 잘 느낍니다. 서운한 일은 혼자 곱씹지 말고 부드럽게 바로 표현하세요.",
+   "모든 사람과 잘 지내려 애쓰면 에너지가 고갈됩니다. 관계에도 우선순위를 정해 무리하지 마세요.",
+   "완벽주의 잣대를 상대에게 들이대면 관계가 피곤해집니다. '적당히 좋은 것'을 허용하는 연습을 하세요."],
+  life:["몸을 따뜻하게 유지하는 것이 건강의 핵심입니다. 복부·발 보온, 따뜻한 물 마시기를 습관화하세요.",
+   "과격한 운동보다 가벼운 근력 운동·요가·산책을 규칙적으로 하는 것이 좋습니다.",
+   "걱정이 소화불량으로 바로 이어지는 체질입니다. 걱정을 종이에 적어 머리 밖으로 꺼내는 습관이 효과적입니다."],
+  goal:["치밀함과 정확성이 강점이므로 전문성·품질이 중요한 일(연구, 관리, 재무, 장인적 기술)에 유리합니다.",
+   "큰 목표 앞에서 걱정으로 시작을 미루기 쉬우니, 목표를 아주 작은 첫걸음으로 쪼개 '작은 성공'을 쌓아가세요.",
+   "에너지 총량이 크지 않은 체질이므로 목표의 개수를 줄이고 한 가지에 깊게 집중하는 전략이 잘 맞습니다."]}
+};
+
+/* ================= 도샤 · 중의9체질 · 혈액형 · MBTI 콘텐츠 ================= */
+const DOSHA = {
+ vata:["바타(Vata) — 바람의 기질","규칙적인 식사·수면 리듬이 가장 중요하고, 따뜻한 음식과 오일 마사지, 몸을 따뜻하게 하는 것이 좋습니다."],
+ pitta:["피타(Pitta) — 불의 기질","몸과 마음의 '열'을 식히는 것이 핵심입니다. 매운 음식·경쟁적 상황·한낮의 격렬한 운동을 줄이고 서늘한 환경을 유지하세요."],
+ kapha:["카파(Kapha) — 흙·물의 기질","정체가 적입니다. 가볍고 따뜻한 음식, 활발한 운동, 아침 일찍 일어나는 습관이 활력을 지켜줍니다."]};
+const TCM = {
+ 기허:"기허(氣虛) — 쉽게 지치는 편. 과로를 피하고 소식하며, 인삼·황기차 등 기운을 보하는 음식이 참고가 됩니다. 무리한 다이어트는 금물입니다.",
+ 양허:"양허(陽虛) — 몸이 찬 편. 몸을 따뜻하게 하고 찬 음식·찬 환경을 줄이는 것이 우선입니다. 가벼운 운동으로 양기를 기르세요.",
+ 음허:"음허(陰虛) — 속열·건조함. 밤샘을 피하고 수분과 수면을 충분히 챙기세요. 맵고 태운 음식을 줄이는 것이 좋습니다.",
+ 담습:"담습(痰濕) — 몸이 무겁고 잘 붓는 편. 기름진 음식·단 음식을 줄이고 땀 내는 유산소 운동이 특히 효과적입니다.",
+ 습열:"습열(濕熱) — 열과 습이 많은 편. 술·기름진 음식·야식을 줄이고 담백한 식단과 규칙적 배변 습관이 중요합니다.",
+ 혈어:"혈어(血瘀) — 순환이 정체되기 쉬운 편. 오래 앉아 있지 않기, 규칙적인 유산소 운동, 몸을 따뜻하게 하는 것이 도움이 됩니다.",
+ 기울:"기울(氣鬱) — 스트레스가 몸으로 오는 편. 감정을 표현하고 몸을 움직여 기운을 순환시키는 것이 중요합니다. 혼자 삭이지 마세요.",
+ 특품:"특품(特稟) — 알레르기 민감 체질. 원인 물질(음식·꽃가루·먼지)을 파악해 피하고, 새로운 음식·약은 소량부터 시도하세요."};
+const BLOOD = {
+ A:"차분하고 성실하다는 이미지로 알려져 있습니다. 완벽주의로 스스로를 몰아세우지 않는지 살펴보세요.",
+ B:"자유롭고 창의적이라는 이미지로 알려져 있습니다. 자신만의 리듬을 지키되 협업의 규칙도 함께 챙기세요.",
+ O:"활달하고 리더십 있다는 이미지로 알려져 있습니다. 추진력이 좋은 만큼 세부 마무리를 점검하세요.",
+ AB:"이성적이고 다면적이라는 이미지로 알려져 있습니다. 생각이 많을 때는 몸을 움직여 환기하세요."};
+/* --- 원전 해설: 「동의수세보원」 + 「격치고」 (현대어 요약·의역) --- */
+const CLASSIC = {
+ 태양:{sung:"애성원산 노정촉급(哀性遠散 怒情促急) — 세상을 널리 근심하는 마음이 크고, 분노는 급하게 일어납니다.",
+  hang:"급박지심(急迫之心) — 늘 서두르는 마음. 원전은 '급박한 마음이 가라앉으면 간혈(肝血)이 온전해진다'고 하여, 조급함을 다스리는 것이 태양인 건강의 핵심이라 보았습니다.",
+  talent:"소통에 능하고 교우(交遇)를 잘합니다 — 낯선 사람과 관계를 열고 새 길을 개척하는 재간.",
+  su:"「격치고」의 가르침대로 매사를 급히 이루려는 마음을 살피세요. '오늘 화가 급히 일어난 순간이 있었는가'를 하루 한 번 돌아보는 것이 태양인의 수양입니다."},
+ 소양:{sung:"노성굉포 애정촉급(怒性宏抱 哀情促急) — 불의에 대한 분노가 크고, 슬픔은 갑자기 밀려옵니다.",
+  hang:"구심(懼心) — 일이 잘못될까 하는 두려움. 원전은 '두려운 마음이 안정되면 신정(腎精)이 온전해진다'고 하여, 두려움을 가라앉히는 것이 소양인 건강의 핵심이라 보았습니다.",
+  talent:"강무(剛武)하고 사무(事務)에 능합니다 — 밖에서 일을 추진하고 성사시키는 재간.",
+  su:"「격치고」는 밖의 일(事)에 마음을 쏟다 안(내면과 집안)을 잃는 것을 경계합니다. '오늘 밖의 일만큼 내 안을 돌보았는가'를 자문하는 것이 소양인의 수양입니다."},
+ 태음:{sung:"희성광장 낙정촉급(喜性廣張 樂情促急) — 기쁨을 넓게 누리고, 즐거움에 빠져들기 쉽습니다.",
+  hang:"겁심(怯心) — 익숙한 곳에 머물려는 겁내는 마음. 원전은 '겁심이 안정되면 거처가 편안해지나, 겁심이 두려움(공포)에 이르면 병이 된다'고 하여, 안주를 깨고 나아가는 용기를 강조했습니다.",
+  talent:"성취에 능하고 거처(居處)를 잘 지킵니다 — 한자리에서 꾸준히 이루어내는 재간.",
+  su:"「격치고」는 안일과 물욕(物)에 마음이 매이는 것을 경계합니다. '오늘 편안함에 머물러 미룬 일이 없는가'를 자문하는 것이 태음인의 수양입니다."},
+ 소음:{sung:"낙성심확 희정촉급(樂性深確 喜情促急) — 잔잔한 즐거움을 깊이 간직하고, 기쁨에 들뜨기 쉽습니다.",
+  hang:"불안정지심(不安定之心) — 늘 안심하지 못하는 마음. 원전은 '불안정한 마음이 가라앉으면 비기(脾氣)가 살아난다'고 하여, 불안을 다스리는 것이 소음인 건강(특히 소화)의 핵심이라 보았습니다.",
+  talent:"단중(端重)하고 당여(黨與)에 능합니다 — 사람들을 아우르며 내실 있게 꾸리는 재간.",
+  su:"「격치고」는 작은 이해득실에 마음(心)이 매이는 것을 경계합니다. '오늘 걱정한 일 중 실제로 일어난 것이 있는가'를 자문하는 것이 소음인의 수양입니다."}};
+
+/* --- 연령대별 맞춤 포인트 --- */
+const AGE = {
+ "10대":{body:"성장기에는 체질 불문 균형 잡힌 식사·충분한 수면(7~9시간)이 최우선입니다. 체질 특성은 성인기에 더 뚜렷해지므로 지금 결과는 참고만 하세요.",
+  goal:"진로를 확정하기보다 다양한 경험으로 나의 강점과 흥미를 탐색하는 것이 이 시기의 가장 좋은 목표입니다."},
+ "20대":{body:"기초체력 저축기입니다. 지금 만든 운동 습관이 평생 자산이 됩니다. 불규칙한 생활·야식·과음이 체질 약점을 키우니 주의하세요.",
+  goal:"실패 비용이 가장 낮은 시기입니다. 안정보다 도전 위주로 목표를 세우고, 작게 여러 번 시도해 보세요."},
+ "30대":{body:"일·가정 병행으로 과로가 쌓이며 체질의 약점이 처음 겉으로 드러나는 시기입니다. 2년 주기 정기검진을 시작하고 수면 부채를 방치하지 마세요.",
+  goal:"벌여 놓은 것들을 정리할 때입니다. 선택과 집중으로 전문성을 축적하는 목표가 효과적입니다."},
+ "40대":{body:"대사 전환기입니다. 같은 식사에도 살이 붙기 시작하니 근력 운동을 필수로 하고, 혈압·혈당·콜레스테롤을 매년 확인하세요.",
+  goal:"인생 후반전을 설계할 때입니다. 목표 목록의 1순위에 '건강'을 명시적으로 올려두세요. 건강이 나머지 목표의 기반입니다."},
+ "50대":{body:"갱년기 호르몬 변화로 체질 특성이 강해지거나 달라질 수 있습니다. 골밀도·심혈관 검진을 챙기고, 근육량 유지를 위해 단백질 섭취를 늘리세요.",
+  goal:"성취 중심에서 관계와 의미 중심으로 목표를 재정렬하기 좋은 시기입니다. 배움·나눔이 들어간 목표가 만족도를 높입니다."},
+ "60대 이상":{body:"'유지가 곧 승리'인 시기입니다. 근감소 예방을 위한 단백질 섭취와 가벼운 근력운동, 낙상 예방, 사회적 연결 유지가 핵심입니다.",
+  goal:"쌓아온 경험을 나누는 역할(멘토링, 봉사, 기록)과 하루의 리듬을 지키는 작은 루틴이 가장 좋은 목표가 됩니다."}};
+/* --- 성별 × 사상체질 맞춤 포인트 --- */
+const GEN = {
+ 여성:{common:"여성은 철분(빈혈)·갑상선·골밀도를 주기적으로 확인하는 것이 좋습니다.",
+  by:{태양:"상열감이 갱년기에 더 두드러질 수 있으니 카페인·음주를 줄이고 하체 운동으로 기운을 내리세요.",
+      소양:"속열이 많은 체질이라 갱년기 상열감·불면이 강하게 올 수 있습니다. 수면 관리가 특히 중요합니다.",
+      태음:"순환이 느려 부종·체중 증가가 잘 옵니다. 땀 내는 유산소 운동을 주 3회 이상 유지하세요.",
+      소음:"수족냉증·생리통·소화불량이 겹치기 쉬운 체질입니다. 복부·발 보온과 따뜻한 음식이 기본 처방입니다."}},
+ 남성:{common:"남성은 심혈관·간 건강이 관건입니다. 음주 빈도를 줄이는 것이 어떤 보약보다 효과적입니다.",
+  by:{태양:"과로와 분노가 간 건강을 해치는 조합입니다. 절주와 화 다스리는 루틴을 세트로 챙기세요.",
+      소양:"혈압이 오르기 쉬운 체질입니다. 짠 음식·급한 성격 관리와 함께 혈압을 정기적으로 재세요.",
+      태음:"복부비만·대사증후군 위험이 가장 큰 조합입니다. 허리둘레를 정기적으로 재고 야식을 끊으세요.",
+      소음:"마르고 체력이 달리기 쉬우니 무리한 운동보다 규칙적인 식사와 점진적 근력 운동으로 기초를 쌓으세요."}}};
+
+const MBTI_AX = {
+ E:"사람을 만나며 에너지를 얻는 타입 — 혼자만의 회복 시간도 일정에 '약속'처럼 넣어두면 번아웃을 예방할 수 있습니다.",
+ I:"혼자 있는 시간에 에너지가 차는 타입 — 관계의 폭보다 깊이에 집중하고, 모임 후 회복 시간을 확보하세요.",
+ S:"현실적·구체적으로 사고하는 타입 — 목표는 눈에 보이는 단계와 수치로 세우면 힘이 납니다. 가끔은 '왜'라는 큰 질문도 던져보세요.",
+ N:"큰 그림과 가능성을 보는 타입 — 비전 설정에 강하니, 실행은 이번 주에 할 일 3가지처럼 구체적으로 좁혀 보완하세요.",
+ T:"논리와 원칙 중심 타입 — 문제 해결력이 강점이지만, 대화에선 해결책보다 공감을 먼저 건네면 관계가 부드러워집니다.",
+ F:"사람과 조화 중심 타입 — 공감력이 강점이지만, 거절하지 못해 지치기 쉬우니 '착한 거절'의 문장을 미리 준비해 두세요.",
+ J:"계획적인 생활이 잘 맞는 타입 — 체질 관리도 루틴화하면 최고의 효과를 냅니다. 단, 계획이 틀어져도 자책하지 마세요.",
+ P:"유연하고 즉흥적인 타입 — 빡빡한 계획보다 '지키는 것 딱 3가지'의 최소 루틴이 오래갑니다."};
+
+/* ================= MBTI 간이 검사 (축별 3문항) ================= */
+const MQ = [
+ {q:"1. 여러 사람과 어울린 모임이 끝나면?", o:[["에너지가 충전된 느낌이다","E"],["즐거웠어도 혼자 쉬어야 회복된다","I"]]},
+ {q:"2. 처음 만난 사람들 사이에서 나는?", o:[["먼저 말을 걸고 분위기를 만든다","E"],["주로 듣다가 필요할 때 말한다","I"]]},
+ {q:"3. 생각이 정리되는 방식은?", o:[["말하면서 생각이 정리된다","E"],["혼자 생각을 정리한 뒤 말한다","I"]]},
+ {q:"4. 설명을 들을 때 나는?", o:[["구체적인 사실과 예시가 있어야 이해된다","S"],["전체 맥락과 의미부터 잡아야 이해된다","N"]]},
+ {q:"5. 일을 할 때 나는?", o:[["검증된 방법을 착실히 따르는 편이다","S"],["새로운 방식을 시도해 보는 편이다","N"]]},
+ {q:"6. 대화 주제로 더 끌리는 것은?", o:[["실제 경험, 현실적인 이야기","S"],["아이디어, 상상, 미래 가능성","N"]]},
+ {q:"7. 친구가 고민을 털어놓으면?", o:[["원인을 분석하고 해결책을 제시한다","T"],["먼저 마음에 공감하고 위로한다","F"]]},
+ {q:"8. 결정을 내릴 때 더 중요한 것은?", o:[["논리적으로 타당한가","T"],["관련된 사람들의 마음은 어떤가","F"]]},
+ {q:"9. 비판을 받으면?", o:[["내용이 맞는지부터 따져본다","T"],["말투와 관계가 먼저 신경 쓰인다","F"]]},
+ {q:"10. 여행을 간다면?", o:[["일정을 미리 짜 두어야 마음이 편하다","J"],["큰 틀만 정하고 즉흥적으로 다닌다","P"]]},
+ {q:"11. 마감이 있는 일은?", o:[["미리미리 끝내 놓는 편이다","J"],["마감이 임박해야 집중이 된다","P"]]},
+ {q:"12. 내 책상과 일정표는?", o:[["정리되어 있어야 일이 잘 된다","J"],["다소 어수선해도 흐름대로 움직인다","P"]]}
+];
+
+/* ================= 앱 로직 ================= */
+const $=id=>document.getElementById(id);
+const mbtiSel=$("inMbti");
+["ISTJ","ISFJ","INFJ","INTJ","ISTP","ISFP","INFP","INTP","ESTP","ESFP","ENFP","ENTP","ESTJ","ESFJ","ENFJ","ENTJ"]
+ .forEach(t=>{const o=document.createElement("option");o.textContent=t;mbtiSel.appendChild(o);});
+
+/* --- 사상 문진 렌더링 --- */
+const answers=new Array(Q.length).fill(null);
+Q.forEach((item,qi)=>{
+  const div=document.createElement("div"); div.className="q";
+  div.innerHTML=`<p>${item.q}</p>`;
+  item.o.forEach((opt,oi)=>{
+    const s=document.createElement("span"); s.className="opt"; s.textContent=opt[0];
+    s.onclick=()=>{answers[qi]=oi;
+      div.querySelectorAll(".opt").forEach(e=>e.classList.remove("sel"));
+      s.classList.add("sel");
+      const done=answers.filter(a=>a!==null).length;
+      $("pbar").style.width=(done/Q.length*100)+"%";
+      $("btnNext2").disabled=done<Q.length;};
+    div.appendChild(s);});
+  $("qbox").appendChild(div);});
+
+/* --- 9체질 문진 렌더링 (5점 척도) --- */
+const bAnswers=new Array(BQ.length).fill(null);
+BQ.forEach((item,qi)=>{
+  const div=document.createElement("div"); div.className="q";
+  div.innerHTML=`<p>${item.q}</p>`;
+  const lrow=document.createElement("div"); lrow.className="likert";
+  LIKERT.forEach((lab,li)=>{
+    const s=document.createElement("span"); s.className="lk"; s.textContent=lab;
+    s.onclick=()=>{bAnswers[qi]=li+1;
+      lrow.querySelectorAll(".lk").forEach(e=>e.classList.remove("sel"));
+      s.classList.add("sel");
+      const done=bAnswers.filter(a=>a!==null).length;
+      $("bpbar").style.width=(done/BQ.length*100)+"%";
+      $("btnResult").disabled=done<BQ.length;};
+    lrow.appendChild(s);});
+  div.appendChild(lrow);
+  $("bqbox").appendChild(div);});
+
+function go(n){[0,1,2,3,"M","B"].forEach(i=>$("step"+i).classList.add("hidden"));
+  $("step"+n).classList.remove("hidden"); window.scrollTo(0,0);}
+
+/* --- MBTI 간이 검사 --- */
+const mAnswers=new Array(MQ.length).fill(null);
+MQ.forEach((item,qi)=>{
+  const div=document.createElement("div"); div.className="q";
+  div.innerHTML=`<p>${item.q}</p>`;
+  item.o.forEach((opt,oi)=>{
+    const s=document.createElement("span"); s.className="opt"; s.textContent=opt[0];
+    s.onclick=()=>{mAnswers[qi]=oi;
+      div.querySelectorAll(".opt").forEach(e=>e.classList.remove("sel"));
+      s.classList.add("sel");
+      const done=mAnswers.filter(a=>a!==null).length;
+      $("mpbar").style.width=(done/MQ.length*100)+"%";
+      $("btnMbti").disabled=done<MQ.length;};
+    div.appendChild(s);});
+  $("mqbox").appendChild(div);});
+
+function finishMbti(){
+  const c={};
+  mAnswers.forEach((ai,qi)=>{const L=MQ[qi].o[ai][1]; c[L]=(c[L]||0)+1;});
+  const pick=(a,b)=>(c[a]||0)>=(c[b]||0)?a:b;
+  const type=pick("E","I")+pick("N","S")+pick("T","F")+pick("J","P");
+  $("inMbti").value=type;
+  alert("간이 검사 결과, 당신의 MBTI는 "+type+" 입니다.\n기본 정보 화면에 자동으로 입력해 드렸어요.");
+  go(1);}
+
+/* --- 판정 로직 --- */
+function bmiScore(h,w){ // KS-15에서 체형(BMI)은 핵심 지표
+  if(!h||!w) return {t:null,pts:0,bmi:null};
+  const bmi=w/((h/100)**2);
+  if(bmi>=25)   return {t:"태음",pts:3,bmi};
+  if(bmi>=23)   return {t:"태음",pts:2,bmi};
+  if(bmi<18.5)  return {t:"소음",pts:3,bmi};
+  if(bmi<20)    return {t:"소음",pts:2,bmi};
+  return {t:null,pts:0,bmi};}
+
+function compute(h,w){
+  const s={태양:0,소양:0,태음:0,소음:0}, d={vata:0,pitta:0,kapha:0};
+  answers.forEach((ai,qi)=>{const m=Q[qi].o[ai][1];
+    s[m.s]++; if(m.d)d[m.d]++;});
+  const b=bmiScore(h,w); if(b.t)s[b.t]+=b.pts;
+  const order=["태음","소음","소양","태양"]; // 동점 시 한국인 분포가 많은 순
+  const type=Object.keys(s).sort((a,b2)=>s[b2]-s[a]||order.indexOf(a)-order.indexOf(b2))[0];
+  const dk=Object.keys(d).sort((a,b2)=>d[b2]-d[a])[0];
+  return {s,type,dosha:d[dk]>0?dk:null,bmi:b.bmi,maxScore:Q.length+3};}
+
+function computeTcm(){
+  const t={};
+  bAnswers.forEach((v,qi)=>{const k=BQ[qi].t; t[k]=(t[k]||0)+v;}); // 각 체질 2~10점
+  const sorted=Object.keys(t).sort((a,b)=>t[b]-t[a]);
+  const strong=sorted.filter(k=>t[k]>=8);          // 뚜렷한 경향
+  const mild=sorted.filter(k=>t[k]>=6&&t[k]<8);    // 가벼운 경향
+  return {t,strong,mild,peace:strong.length===0&&mild.length===0};}
+
+function bars(s,max){
+  return ["태양","소양","태음","소음"].map(k=>
+   `<div class="bar-row"><b>${k}인</b><div class="bar">
+    <i class="${k==='태양'||k==='소양'?'hot':''}" style="width:${Math.min(s[k]/max*100,100)}%"></i></div>
+    <span class="sub">${s[k]}</span></div>`).join("");}
+
+function tcmBars(t){
+  return Object.keys(t).map(k=>
+   `<div class="bar-row"><b>${k}</b><div class="bar">
+    <i class="${t[k]>=8?'hot':''}" style="width:${(t[k]-2)/8*100}%"></i></div>
+    <span class="sub">${t[k]}/10</span></div>`).join("");}
+
+/* --- 교차 검증: 사상·중의·도샤 결과를 한열(寒熱) 축으로 비교 --- */
+function crossCheck(type,t,dosha){
+  const sMap={태양:0.5,소양:1,태음:0,소음:-1};                    // 사상: 소양 열, 소음 한
+  const sv=sMap[type];
+  const tv=((t["음허"]+t["습열"])-(t["양허"]+t["기허"]))/16;      // 9체질: 열성-한성 점수차 (-1~1)
+  const dMap={pitta:1,vata:-1,kapha:-0.3};
+  const dv=dosha?dMap[dosha]:null;
+  const dName={pitta:"피타",vata:"바타",kapha:"카파"};
+  const label=v=>v>0.15?"열(熱) 방향":v<-0.15?"한(寒) 방향":"중간·균형";
+  const items=[["사상체질 문진 → "+type+"인",label(sv)],["중의 9체질 문진",label(tv)]];
+  if(dv!==null)items.push(["아유르베다 도샤 → "+dName[dosha],label(dv)]);
+  const signs=[sv,tv,...(dv!==null?[dv]:[])].map(v=>v>0.15?1:v<-0.15?-1:0);
+  const nz=signs.filter(s=>s!==0);
+  let level,color,msg;
+  if(nz.length>=2&&nz.every(s=>s===nz[0])){
+    level="높음"; color="#3d7a5f";
+    msg=`서로 다른 전통의 체질론들이 모두 같은 방향(${nz[0]>0?"열이 많은":"차고 허한"} 체질)을 가리킵니다. 문진 간 교차 일치도가 높아 이 결과는 신뢰할 만합니다.`;}
+  else if(nz.length>1&&new Set(nz).size>1){
+    level="낮음"; color="#c96f4a";
+    msg="체질론 간 결과가 서로 다른 방향을 가리킵니다. 설문만으로 판별이 어려운 복합 유형일 수 있으니, 아래 행동요령은 참고만 하시고 한의원의 대면 진단(진맥·체형 관찰)을 받아보시길 권합니다.";}
+  else{
+    level="보통"; color="#b58a2a";
+    msg="뚜렷한 한열 편향 없이 균형에 가까운 결과입니다. 아래 행동요령을 참고해 지금의 균형을 유지하세요.";}
+  return {level,color,items,msg};}
+
+function showResult(){
+  const h_=parseFloat($("inHeight").value), w_=parseFloat($("inWeight").value);
+  const {s,type,dosha,bmi,maxScore}=compute(h_,w_);
+  const {t,strong,mild,peace}=computeTcm();
+  const name=$("inName").value.trim(), blood=$("inBlood").value, mbti=$("inMbti").value;
+  const age=$("inAge").value, gender=$("inGender").value;
+  const C=SASANG[type];
+  const X=crossCheck(type,t,dosha);
+  let h=`<div class="result-head">
+    <span class="badge">종합 체질 리포트</span>
+    <div class="type">${name?name+" 님은 ":""}${type}인</div>
+    <p class="sub">${C.intro}</p>
+    <p style="margin-top:8px"><span class="tag" style="background:${X.color};color:#fff">체질 일치도: ${X.level}</span></p></div>
+    <h3>🔎 교차 검증 — 동서양 체질론이 가리키는 방향</h3>
+    <ul>${X.items.map(([n,v])=>`<li><b>${n}:</b> ${v}</li>`).join("")}</ul>
+    <p class="sub">${X.msg}</p>
+    <h3>사상체질 점수 <span class="sub">(문진 ${Q.length} + 체형 최대 3점${bmi?` · BMI ${bmi.toFixed(1)}`:""})</span></h3>
+    ${bars(s,maxScore)}`;
+
+  h+=`<h3>중의 9체질 결과 <span class="sub">(항목별 2~10점, 8점 이상 뚜렷)</span></h3>${tcmBars(t)}<ul>`;
+  if(peace) h+=`<li><b>평화질(平和質)</b>에 가깝습니다. 특정 편향이 두드러지지 않는 균형 상태이니 지금의 생활을 유지하세요.</li>`;
+  strong.slice(0,2).forEach(k=>h+=`<li><b>뚜렷:</b> ${TCM[k]}</li>`);
+  if(strong.length<2) mild.slice(0,2-strong.length).forEach(k=>h+=`<li><b>경향:</b> ${TCM[k]}</li>`);
+  h+=`</ul>`;
+
+  h+=`<h3>다른 관점에서 본 나</h3><ul>`;
+  if(dosha) h+=`<li><b>아유르베다:</b> ${DOSHA[dosha][0]}. ${DOSHA[dosha][1]}</li>`;
+  if(blood) h+=`<li><b>혈액형(${blood}형):</b> ${BLOOD[blood]} <span class="sub">※ 과학적 근거 없는 재미 참고</span></li>`;
+  h+=`</ul>`;
+
+  const K=CLASSIC[type];
+  h+=`<h3>📜 원전으로 보는 나 <span class="sub">(동의수세보원 · 격치고, 현대어 요약)</span></h3><ul>
+   <li><b>성정(사단론):</b> ${K.sung}</li>
+   <li><b>늘 지닌 마음(항심):</b> ${K.hang}</li>
+   <li><b>타고난 재간:</b> ${K.talent}</li>
+   <li><b>마음 수양(격치고):</b> ${K.su}</li></ul>`;
+
+  if(age||gender){
+    h+=`<h3>🧭 연령대·성별 맞춤 포인트${age||gender?` <span class="sub">(${[gender,age].filter(x=>x).join(" · ")})</span>`:""}</h3><ul>`;
+    if(age&&AGE[age]){h+=`<li><b>몸 관리:</b> ${AGE[age].body}</li><li><b>목표 관점:</b> ${AGE[age].goal}</li>`;}
+    if(gender&&GEN[gender]){h+=`<li><b>공통 체크:</b> ${GEN[gender].common}</li>
+      <li><b>${gender} ${type}인 포인트:</b> ${GEN[gender].by[type]}</li>`;}
+    h+=`</ul>`;}
+
+  h+=`<h3>🍚 음식 — 이렇게 드세요</h3>
+   <p><span class="tag">잘 맞는 음식</span>${C.food.good}</p>
+   <p><span class="tag">줄일 음식</span>${C.food.bad}</p>
+   <p class="sub">${C.food.tip}</p>`;
+
+  h+=`<h3>🤝 사람을 대하는 태도</h3><ul>${C.people.map(x=>`<li>${x}</li>`).join("")}`;
+  if(mbti){h+=`<li><b>MBTI 보완(${mbti}):</b> ${MBTI_AX[mbti[0]]}</li><li>${MBTI_AX[mbti[2]]}</li>`;}
+  h+=`</ul>`;
+
+  h+=`<h3>🌱 생활방식</h3><ul>${C.life.map(x=>`<li>${x}</li>`).join("")}`;
+  if(mbti) h+=`<li><b>MBTI 보완:</b> ${MBTI_AX[mbti[3]]}</li>`;
+  h+=`</ul>`;
+
+  h+=`<h3>🎯 인생 목표설정</h3><ul>${C.goal.map(x=>`<li>${x}</li>`).join("")}`;
+  if(mbti) h+=`<li><b>MBTI 보완:</b> ${MBTI_AX[mbti[1]]}</li>`;
+  h+=`</ul>`;
+
+  h+=`<div class="note"><b>안내</b> · 이 문진은 한국한의학연구원 KS-15(체형·성격·소증),
+   이제마 원전 「동의수세보원」(사단론·확충론)과
+   중국 표준 CCMQ의 <b>구조를 참고해 재구성한 간이 도구</b>이며, 원 설문 및 전문 진단을 대신하지 않습니다.
+   원전 인용은 현대어로 요약·의역한 것으로 원문 그대로가 아닙니다.
+   사상체질의 정확한 감별은 한의사의 대면 진단(진맥·체형 관찰)이 필요합니다.
+   MBTI는 성격 '선호'를 나타낼 뿐 사람을 규정하지 않으며, 혈액형 성격론은 과학적 근거가 없습니다.
+   건강 이상이 있을 때는 반드시 의료 전문가와 상담하세요.</div>`;
+
+  $("result").innerHTML=h; go(3);}
+</script>
+</body>
+</html>
