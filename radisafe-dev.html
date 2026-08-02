@@ -396,7 +396,9 @@ select {
           <button class="region-btn" data-region="chest_abdomen"  onclick="selectRegion(this)"><span class="ri">🩺</span>흉복부</button>
           <button class="region-btn" data-region="abdomen_pelvis" onclick="selectRegion(this)"><span class="ri">🔬</span>복골반</button>
           <button class="region-btn" data-region="whole"          onclick="selectRegion(this)"><span class="ri">🧍</span>전신</button>
-          <button class="region-btn" data-region="spine_lumbar"   onclick="selectRegion(this)"><span class="ri">🦷</span>요추</button>
+          <button class="region-btn" data-region="spine_cervical" onclick="selectRegion(this)"><span class="ri">🦴</span>경추</button>
+          <button class="region-btn" data-region="spine_thoracic" onclick="selectRegion(this)"><span class="ri">🦴</span>흉추</button>
+          <button class="region-btn" data-region="spine_lumbar"   onclick="selectRegion(this)"><span class="ri">🦴</span>요추</button>
         </div>
       </div>
 
@@ -547,6 +549,7 @@ select {
       <div class="card">
         <div class="card-title">📋 검사 기록</div>
         <div id="historyList"><div style="text-align:center;padding:24px;color:var(--text2);font-size:14px;">아직 저장된 기록이 없습니다.<br>계산 후 저장 버튼을 눌러보세요 😊</div></div>
+        <button onclick="clearHistory()" style="width:100%;margin-top:12px;padding:12px;background:none;border:1.5px solid #f5a0a0;border-radius:12px;color:var(--danger);font-size:14px;font-weight:700;cursor:pointer;">🗑 전체 기록 지우기</button>
       </div>
     </div>
   </div>
@@ -728,12 +731,12 @@ select {
 const K_FACTORS = {
   head:0.0023, neck:0.0054, chest:0.017, abdomen:0.015,
   pelvis:0.019, chest_abdomen:0.016, abdomen_pelvis:0.017,
-  whole:0.015, spine_lumbar:0.015
+  whole:0.015, spine_cervical:0.0054, spine_thoracic:0.017, spine_lumbar:0.015
 };
 const REGION_NAMES = {
   head:'🧠 머리', neck:'🫀 목', chest:'🫁 흉부', abdomen:'🫃 복부',
   pelvis:'🦴 골반', chest_abdomen:'🩺 흉복부', abdomen_pelvis:'🔬 복골반',
-  whole:'🧍 전신', spine_lumbar:'🦷 요추'
+  whole:'🧍 전신', spine_cervical:'🦴 경추', spine_thoracic:'🦴 흉추', spine_lumbar:'🦴 요추'
 };
 
 // SSDE conversion coefficients (AAPM Report 204: f = a·exp(-b·d))
@@ -915,6 +918,19 @@ function renderResult(ed, region) {
   document.getElementById('saveCtaPremium').style.display = state.isPremium ? 'block' : 'none';
 }
 
+function deleteHistory(i) {
+  state.history.splice(i, 1);
+  saveState(); renderRecords();
+  showToast('🗑 기록 1건을 지웠습니다');
+}
+function clearHistory() {
+  if (!state.history.length) { showToast('지울 기록이 없습니다'); return; }
+  if (confirm('모든 기록을 지울까요? 되돌릴 수 없습니다.')) {
+    state.history = [];
+    saveState(); renderRecords();
+    showToast('🗑 모든 기록을 지웠습니다');
+  }
+}
 function saveToHistory() {
   if (!currentDose) return;
   state.history.unshift(currentDose);
@@ -951,10 +967,13 @@ function renderRecords() {
     list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text2);font-size:14px;">아직 저장된 기록이 없습니다.<br>계산기에서 결과를 저장해보세요 😊</div>';
     return;
   }
-  list.innerHTML = state.history.map(h =>
+  list.innerHTML = state.history.map((h, i) =>
     `<div class="history-item">
       <div><div class="history-region">${REGION_NAMES[h.region]||h.region}</div><div class="history-date">${h.date}${h.ssde ? ' · SSDE ' + h.ssde.toFixed(1) + ' mGy' : ''}</div></div>
-      <div class="history-dose">${h.ed.toFixed(2)} mSv</div>
+      <div style="display:flex;align-items:center;gap:10px;">
+        <div class="history-dose">${h.ed.toFixed(2)} mSv</div>
+        <button onclick="deleteHistory(${i})" title="이 기록 삭제" style="border:none;background:#fdecea;color:var(--danger);width:28px;height:28px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">✕</button>
+      </div>
     </div>`
   ).join('');
 }

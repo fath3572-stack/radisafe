@@ -396,7 +396,9 @@ select {
           <button class="region-btn" data-region="chest_abdomen"  onclick="selectRegion(this)"><span class="ri">🩺</span>흉복부</button>
           <button class="region-btn" data-region="abdomen_pelvis" onclick="selectRegion(this)"><span class="ri">🔬</span>복골반</button>
           <button class="region-btn" data-region="whole"          onclick="selectRegion(this)"><span class="ri">🧍</span>전신</button>
-          <button class="region-btn" data-region="spine_lumbar"   onclick="selectRegion(this)"><span class="ri">🦷</span>요추</button>
+          <button class="region-btn" data-region="spine_cervical" onclick="selectRegion(this)"><span class="ri">🦴</span>경추</button>
+          <button class="region-btn" data-region="spine_thoracic" onclick="selectRegion(this)"><span class="ri">🦴</span>흉추</button>
+          <button class="region-btn" data-region="spine_lumbar"   onclick="selectRegion(this)"><span class="ri">🦴</span>요추</button>
         </div>
       </div>
 
@@ -728,12 +730,12 @@ select {
 const K_FACTORS = {
   head:0.0023, neck:0.0054, chest:0.017, abdomen:0.015,
   pelvis:0.019, chest_abdomen:0.016, abdomen_pelvis:0.017,
-  whole:0.015, spine_lumbar:0.015
+  whole:0.015, spine_cervical:0.0054, spine_thoracic:0.017, spine_lumbar:0.015
 };
 const REGION_NAMES = {
   head:'🧠 머리', neck:'🫀 목', chest:'🫁 흉부', abdomen:'🫃 복부',
   pelvis:'🦴 골반', chest_abdomen:'🩺 흉복부', abdomen_pelvis:'🔬 복골반',
-  whole:'🧍 전신', spine_lumbar:'🦷 요추'
+  whole:'🧍 전신', spine_cervical:'🦴 경추', spine_thoracic:'🦴 흉추', spine_lumbar:'🦴 요추'
 };
 
 // SSDE conversion coefficients (AAPM Report 204: f = a·exp(-b·d))
