@@ -122,6 +122,18 @@ header {
 }
 .region-btn .ri { font-size: 24px; }
 .region-btn.selected { border-color: var(--primary); background: var(--primary-light); color: var(--primary); font-weight: 700; }
+.region-wrap { position: relative; }
+.region-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 30px; height: 30px; border-radius: 50%; z-index: 5;
+  background: white; border: 1.5px solid var(--border);
+  box-shadow: 0 2px 8px rgba(0,0,0,0.15); cursor: pointer;
+  font-size: 12px; color: var(--text2); display: flex;
+  align-items: center; justify-content: center; padding: 0;
+}
+.region-arrow:active { background: var(--primary-light); color: var(--primary); }
+.region-arrow.left { left: -10px; }
+.region-arrow.right { right: -10px; }
 
 /* ── Form ── */
 .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
@@ -387,6 +399,8 @@ select {
 
       <div class="form-group" style="margin-bottom:16px;">
         <label>촬영 부위</label>
+        <div class="region-wrap">
+        <button type="button" class="region-arrow left" onclick="scrollRegions(-1)" aria-label="이전 부위 보기">◀</button>
         <div class="region-scroll" id="regionScroll">
           <button class="region-btn" data-region="head"           onclick="selectRegion(this)"><span class="ri">🧠</span>머리</button>
           <button class="region-btn" data-region="neck"           onclick="selectRegion(this)"><span class="ri">🫀</span>목</button>
@@ -401,6 +415,8 @@ select {
           <button class="region-btn" data-region="spine_lumbar"   onclick="selectRegion(this)"><span class="ri">🦴</span>요추</button>
           <button class="region-btn" data-region="upper_limb"     onclick="selectRegion(this)"><span class="ri">💪</span>상지</button>
           <button class="region-btn" data-region="lower_limb"     onclick="selectRegion(this)"><span class="ri">🦵</span>하지</button>
+        </div>
+        <button type="button" class="region-arrow right" onclick="scrollRegions(1)" aria-label="다음 부위 보기">▶</button>
         </div>
       </div>
 
@@ -782,6 +798,19 @@ function selectRegion(btn) {
   btn.classList.add('selected');
   selectedRegion = btn.dataset.region;
 }
+
+// 부위 버튼 목록 좌우 이동 (화살표 버튼)
+function scrollRegions(dir) {
+  const sc = document.getElementById('regionScroll');
+  sc.scrollBy({ left: dir * Math.round(sc.clientWidth * 0.7), behavior: 'smooth' });
+}
+// 마우스 휠로도 좌우 이동 (PC)
+document.getElementById('regionScroll').addEventListener('wheel', function(e) {
+  if (Math.abs(e.deltaY) > Math.abs(e.deltaX)) {
+    e.preventDefault();
+    this.scrollLeft += e.deltaY;
+  }
+}, { passive: false });
 
 function ageSensitivity(age) {
   if (!age) return 1.0;
