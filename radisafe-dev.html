@@ -367,7 +367,99 @@ select {
   .compare-name { min-width: 90px; font-size: 11px; }
   .dose-value { font-size: 52px; }
 }
-</style>
+
+    /* ===== DRL 참고범위 모듈 (환자용) ===== */
+    #drlBlock{margin-top:18px}
+    .drl-card{background:#fff;border:1px solid #e6ebf0;border-radius:14px;padding:16px}
+    .drl-title{display:flex;align-items:center;gap:6px;font-size:14px;font-weight:700;color:var(--text2,#333)}
+    .drl-badge{margin-left:auto;font-size:11px;font-weight:700;padding:3px 8px;border-radius:20px;background:var(--primary-light,#eaf3fb);color:var(--primary,#1a6fbf)}
+    .drl-sub{font-size:12px;color:#8890a0;margin:8px 0 12px;line-height:1.5}
+    .drl-metric{margin:12px 0}
+    .drl-metric-top{display:flex;justify-content:space-between;align-items:baseline;font-size:13px;margin-bottom:6px}
+    .drl-metric-name{color:#8890a0}
+    .drl-mine{font-weight:700;font-size:15px}
+    .drl-ref{color:#8890a0;font-size:12px;margin-left:6px}
+    .drl-bar{position:relative;height:10px;background:#eef2f6;border-radius:6px;overflow:hidden}
+    .drl-fill{position:absolute;left:0;top:0;bottom:0;border-radius:6px}
+    .drl-ref-line{position:absolute;top:-3px;bottom:-3px;width:2px;background:#9aa7b4;border-radius:2px}
+    .drl-fill.ok{background:#2e9e5b}.drl-fill.note{background:#e0952b}
+    .drl-msg{margin-top:12px;padding:12px 13px;border-radius:10px;font-size:13px;line-height:1.6}
+    .drl-msg.ok{background:#e9f6ee;color:#256b45}
+    .drl-msg.note{background:#fdf3e3;color:#8a5a12}
+    .drl-msg.na{background:var(--primary-light,#eaf3fb);color:#2b5d8f}
+    .drl-foot{margin-top:10px;font-size:11px;color:#9aa3b0;line-height:1.5}
+
+  
+    /* ===== 선량보고서 OCR 자동 입력 (베타) ===== */
+    .ocr-wrap{margin-bottom:14px}
+    .ocr-btn{width:100%;padding:13px;border:1.5px dashed var(--primary,#1a6fbf);background:var(--primary-light,#eaf3fb);color:var(--primary,#1a6fbf);border-radius:12px;font-size:14px;font-weight:700;cursor:pointer;display:flex;align-items:center;justify-content:center;gap:6px}
+    .ocr-btn:active{opacity:.85}
+    .ocr-beta{font-size:10px;font-weight:800;background:var(--primary,#1a6fbf);color:#fff;padding:1px 6px;border-radius:10px}
+    .ocr-status{margin-top:10px;font-size:13px;color:var(--primary,#1a6fbf);text-align:center}
+    .ocr-confirm{margin-top:10px;border:1px solid #e6ebf0;border-radius:12px;padding:14px;background:#fff}
+    .ocr-title{font-size:13px;font-weight:700;margin-bottom:10px}
+    .ocr-row{display:flex;justify-content:space-between;font-size:14px;padding:6px 0;border-bottom:1px solid #f1f4f7}
+    .ocr-row span{color:#8890a0}
+    .ocr-fail{font-size:13px;color:#8a5a12;background:#fdf3e3;padding:10px;border-radius:8px}
+    .ocr-actions{display:flex;gap:8px;margin-top:12px}
+    .ocr-apply{flex:2;padding:11px;border:0;border-radius:10px;background:var(--primary,#1a6fbf);color:#fff;font-weight:700;cursor:pointer}
+    .ocr-cancel{flex:1;padding:11px;border:1px solid #e6ebf0;border-radius:10px;background:#fff;color:#666;cursor:pointer}
+    .ocr-hint{margin-top:10px;font-size:11px;color:#9aa3b0;line-height:1.5}
+
+  
+    /* ===== 단건 상세 리포트 (인쇄→PDF) ===== */
+    .rpt-open-btn{width:100%;margin-top:14px;padding:13px;border:1.5px solid var(--primary,#1a6fbf);background:#fff;color:var(--primary,#1a6fbf);border-radius:12px;font-size:14px;font-weight:700;cursor:pointer}
+    .rpt-open-btn:active{background:var(--primary-light,#eaf3fb)}
+    #reportView{display:none;position:fixed;inset:0;z-index:9999;background:#fff;overflow:auto;padding:24px 18px 96px;color:#1f2a37}
+    .rpt{max-width:720px;margin:0 auto;font-size:14px;line-height:1.6}
+    .rpt h1{font-size:19px;margin:0 0 4px}
+    .rpt-meta{color:#8890a0;font-size:12px;margin-bottom:16px}
+    .rpt-sec{margin:16px 0}
+    .rpt-sec h2{font-size:14px;border-left:3px solid var(--primary,#1a6fbf);padding-left:8px;margin:0 0 10px}
+    .rpt-kv{display:flex;justify-content:space-between;gap:12px;border-bottom:1px solid #eef2f6;padding:6px 0}
+    .rpt-kv span{color:#8890a0}
+    .rpt-kv b{text-align:right}
+    .rpt-table{width:100%;border-collapse:collapse;font-size:13px}
+    .rpt-table th,.rpt-table td{border:1px solid #dfe5ec;padding:8px;text-align:left}
+    .rpt-table th{background:#f4f7fa}
+    .rpt-hl{background:#eaf3fb;font-weight:700}
+    .rpt-note{font-size:11px;color:#8890a0;line-height:1.5;margin-top:8px}
+    .rpt-actions{position:fixed;bottom:0;left:0;right:0;background:#fff;border-top:1px solid #e6ebf0;padding:12px 16px;display:flex;gap:10px}
+    .rpt-print{flex:2;padding:13px;border:0;border-radius:10px;background:var(--primary,#1a6fbf);color:#fff;font-weight:700;cursor:pointer}
+    .rpt-close{flex:1;padding:13px;border:1px solid #e6ebf0;border-radius:10px;background:#fff;color:#666;cursor:pointer}
+    @media print {
+      body.rpt-open > *:not(#reportView){ display:none !important; }
+      body.rpt-open #reportView{ position:static; display:block !important; padding:0; }
+      #reportView .rpt-actions{ display:none !important; }
+    }
+
+  
+    /* ===== 2 profile/multi-exam/lifetime ===== */
+    .prof-bar{display:flex;flex-wrap:wrap;gap:8px}
+    .prof-pill{padding:8px 14px;border:1px solid #dfe5ec;border-radius:20px;background:#fff;font-size:13px;font-weight:600;cursor:pointer}
+    .prof-pill.active{background:var(--primary,#1a6fbf);color:#fff;border-color:var(--primary,#1a6fbf)}
+    .prof-add{padding:8px 14px;border:1px dashed var(--primary,#1a6fbf);border-radius:20px;background:var(--primary-light,#eaf3fb);color:var(--primary,#1a6fbf);font-size:13px;font-weight:700;cursor:pointer}
+    .lt-total{font-size:30px;font-weight:900;color:var(--primary,#1a6fbf)}
+    .lt-total span{font-size:15px;font-weight:700}
+    .lt-sub{font-size:13px;color:var(--text2,#667);margin-top:4px}
+    .lt-note{font-size:11px;color:#9aa3b0;line-height:1.5;margin-top:10px}
+    .qx-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px}
+    .qx-btn{display:flex;flex-direction:column;align-items:flex-start;gap:2px;padding:10px 12px;border:1px solid #dfe5ec;border-radius:10px;background:#fff;font-size:13px;font-weight:600;cursor:pointer;text-align:left}
+    .qx-btn span{font-size:11px;color:#8890a0;font-weight:500}
+    .qx-btn:active{background:var(--primary-light,#eaf3fb)}
+
+  
+    /* ===== 인앱 확인/입력 모달 (native confirm/prompt 대체) ===== */
+    .rs-modal{display:none;position:fixed;inset:0;z-index:10000;background:rgba(0,0,0,.45);align-items:center;justify-content:center;padding:24px}
+    .rs-modal.active{display:flex}
+    .rs-modal-box{background:#fff;border-radius:16px;padding:20px;max-width:340px;width:100%;box-shadow:0 10px 40px rgba(0,0,0,.2)}
+    .rs-modal-msg{font-size:15px;line-height:1.5;color:#1f2a37;margin-bottom:14px;white-space:pre-line}
+    .rs-modal-input{width:100%;padding:11px 12px;border:1px solid #dfe5ec;border-radius:10px;font-size:15px;margin-bottom:14px;box-sizing:border-box}
+    .rs-modal-actions{display:flex;gap:10px}
+    .rs-modal-cancel{flex:1;padding:12px;border:1px solid #e6ebf0;border-radius:10px;background:#fff;color:#666;font-weight:600;cursor:pointer}
+    .rs-modal-ok{flex:1;padding:12px;border:0;border-radius:10px;background:var(--primary,#1a6fbf);color:#fff;font-weight:700;cursor:pointer}
+
+  </style>
 </head>
 <body>
 
@@ -420,6 +512,14 @@ select {
         </div>
       </div>
 
+      <div class="ocr-wrap">
+        <button type="button" class="ocr-btn" onclick="document.getElementById('ocrFile').click()">
+          📷 선량보고서 사진으로 자동 입력 <span class="ocr-beta">BETA</span>
+        </button>
+        <input type="file" id="ocrFile" accept="image/*" capture="environment" style="display:none" onchange="ocrHandleFile(event)">
+        <div id="ocrStatus" class="ocr-status" style="display:none"></div>
+        <div id="ocrConfirm" class="ocr-confirm" style="display:none"></div>
+      </div>
       <div class="form-grid">
         <div class="form-group">
           <label>CTDIvol <span class="unit">(mGy)</span></label>
@@ -507,6 +607,8 @@ select {
         <div style="font-size:13px;font-weight:700;color:var(--text2);margin-bottom:10px;">📌 일상 방사선과 비교</div>
         <div id="compareRows"></div>
       </div>
+            <div id="drlBlock"></div>
+      <div><button type="button" class="rpt-open-btn" onclick="openReport()">📄 상세 리포트 · 의사 상담용 요약 만들기</button></div>
       <!-- Save to history CTA (premium) -->
       <div id="saveCtaFree" style="margin-top:16px;background:var(--primary-light);border-radius:12px;padding:14px;text-align:center;">
         <div style="font-size:13px;color:var(--text2);margin-bottom:8px;">📅 이 결과를 연간 기록에 저장하려면</div>
@@ -557,12 +659,25 @@ select {
     <!-- If premium: records -->
     <div id="recordsPremium" style="display:none;">
       <div class="card">
+        <div class="card-title">👥 프로필 <span style="font-size:11px;color:var(--text2);font-weight:400;">(가족 추가 · 이름 더블클릭 삭제)</span></div>
+        <div id="profileBar" class="prof-bar"></div>
+      </div>
+      <div class="card">
         <div class="card-title">📅 <span id="recordsYear">2026</span>년 누적 선량 <span class="badge badge-active">✅ 프리미엄</span></div>
         <div class="annual-bar-wrap">
           <div class="annual-bar-label"><span>누적 유효선량</span><span id="annualSummary">0 / 20 mSv</span></div>
           <div class="annual-bar-track"><div class="annual-bar-fill" id="annualBarFill" style="width:0%">0%</div></div>
         </div>
         <div style="font-size:13px;color:var(--text2);margin-top:10px;" id="annualRemaining">올해 추가 안전 선량: <strong>20 mSv</strong></div>
+      </div>
+      <div class="card">
+        <div class="card-title">🧬 평생 누적선량</div>
+        <div id="lifetimeBox"></div>
+      </div>
+      <div class="card">
+        <div class="card-title">➕ 다른 검사 간편 기록</div>
+        <div style="font-size:12px;color:var(--text2);margin-bottom:10px;">CT 외 검사는 대표 추정값으로 기록됩니다 (장비·프로토콜에 따라 다름).</div>
+        <div id="quickExamBtns" class="qx-grid"></div>
       </div>
       <div class="card">
         <div class="card-title">📋 검사 기록</div>
@@ -773,6 +888,7 @@ let selectedPlanId = 'monthly';
 // Simulated state (replace with real auth/DB in production)
 let state = JSON.parse(localStorage.getItem('radisafe_dev_state') || '{}');
 if (!state.history) state.history = [];
+migrateProfiles();
 state.isPremium = true; // ★ DEV 빌드: 프리미엄 자동 내장 (결제 없이 전체 기능 사용)
 
 function saveState() { localStorage.setItem('radisafe_dev_state', JSON.stringify(state)); }
@@ -870,6 +986,8 @@ function calculate() {
   if (ssdeInfo) currentDose.ssde = Math.round(ssdeInfo.ssde * 10) / 10;
 
   renderResult(ed, selectedRegion);
+  renderDRL(selectedRegion, ctdi, dlp, age);
+  _reportSnap = { ed: ed, region: selectedRegion, ctdi: ctdi, dlp: dlp, age: age, sex: sex, weight: weight, phases: phases, ssde: (ssdeInfo ? Math.round(ssdeInfo.ssde*10)/10 : null), date: new Date().toISOString().split('T')[0] };
   renderSSDE(ssdeInfo, ctdi);
 }
 
@@ -888,6 +1006,345 @@ function renderSSDE(info, ctdi) {
   block.innerHTML = html;
   block.style.display = 'block';
 }
+
+
+
+// ===== 선량보고서 OCR 자동 입력 (베타) — 클라이언트 OCR(Tesseract.js) =====
+// 의료 값이므로 자동 적용 금지: 인식 후 사용자가 반드시 확인/적용.
+let _ocrLoading = null, _ocrResult = null;
+function ocrEnsure(){
+  if (window.Tesseract) return Promise.resolve();
+  if (_ocrLoading) return _ocrLoading;
+  _ocrLoading = new Promise((res, rej) => {
+    const sc = document.createElement('script');
+    sc.src = 'https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js';
+    sc.onload = () => res();
+    sc.onerror = () => rej(new Error('OCR 엔진 로드 실패'));
+    document.head.appendChild(sc);
+  });
+  return _ocrLoading;
+}
+function ocrSetStatus(msg, show){
+  const el = document.getElementById('ocrStatus');
+  if (!el) return;
+  el.innerHTML = msg; el.style.display = (show === false) ? 'none' : 'block';
+}
+function ocrSelectRegion(key){
+  const b = document.querySelector('.region-btn[data-region="' + key + '"]');
+  if (b){ selectRegion(b); try { b.scrollIntoView({inline:'center', block:'nearest'}); } catch(e){} }
+}
+function ocrParse(text){
+  const T = (text || '').toUpperCase().replace(/[|]/g, ' ');
+  const num = re => { const m = T.match(re); return m ? parseFloat(m[1].replace(',', '.')) : null; };
+  let ctdi = num(/CTDI\s*VOL[^0-9]{0,14}(\d+(?:[.,]\d+)?)/);
+  if (ctdi == null) ctdi = num(/CTDI[^0-9]{0,14}(\d+(?:[.,]\d+)?)/);
+  let dlp = num(/TOTAL\s*DLP[^0-9]{0,14}(\d+(?:[.,]\d+)?)/);
+  if (dlp == null) dlp = num(/DLP[^0-9]{0,14}(\d+(?:[.,]\d+)?)/);
+  let region = null;
+  const has = w => T.indexOf(w) >= 0;
+  if (has('ABDOMEN') && has('PELVIS')) region = 'abdomen_pelvis';
+  else if (has('ABDOMEN') || has(' ABD')) region = 'abdomen';
+  else if (has('PELVIS')) region = 'pelvis';
+  else if (has('CHEST') || has('THORAX') || has('LUNG')) region = 'chest';
+  else if (has('BRAIN') || has('HEAD')) region = 'head';
+  else if (has('NECK')) region = 'neck';
+  else if (has('CERVICAL')) region = 'spine_cervical';
+  else if (has('LUMBAR')) region = 'spine_lumbar';
+  else if (has('THORACIC')) region = 'spine_thoracic';
+  return { ctdi: ctdi, dlp: dlp, region: region };
+}
+async function ocrHandleFile(ev){
+  const file = ev.target.files && ev.target.files[0];
+  ev.target.value = '';
+  if (!file) return;
+  const cf = document.getElementById('ocrConfirm'); if (cf) cf.style.display = 'none';
+  ocrSetStatus('📷 OCR 엔진 준비 중…', true);
+  try {
+    await ocrEnsure();
+    ocrSetStatus('🔎 글자 인식 중… 0%', true);
+    const out = await Tesseract.recognize(file, 'eng', {
+      logger: m => { if (m.status === 'recognizing text') ocrSetStatus('🔎 글자 인식 중… ' + Math.round((m.progress || 0) * 100) + '%', true); }
+    });
+    _ocrResult = ocrParse((out && out.data && out.data.text) || '');
+    ocrShowConfirm(_ocrResult);
+    ocrSetStatus('', false);
+  } catch(e){
+    ocrSetStatus('⚠️ 자동 인식에 실패했어요. 값을 직접 입력해 주세요.', true);
+  }
+}
+function ocrShowConfirm(r){
+  const box = document.getElementById('ocrConfirm');
+  if (!box) return;
+  const nm = {head:'머리',neck:'목',chest:'흉부',abdomen:'복부',pelvis:'골반',chest_abdomen:'흉복부',abdomen_pelvis:'복골반',whole:'전신',spine_cervical:'경추',spine_thoracic:'흉추',spine_lumbar:'요추',upper_limb:'상지',lower_limb:'하지'};
+  const row = (lbl, val) => '<div class="ocr-row"><span>' + lbl + '</span><b>' + ((val != null && val !== '') ? val : '인식 안 됨') + '</b></div>';
+  if (r.ctdi == null && r.dlp == null){
+    box.innerHTML = '<div class="ocr-fail">사진에서 CTDIvol·DLP 값을 찾지 못했어요. 더 선명한 사진을 쓰거나 직접 입력해 주세요.</div>';
+    box.style.display = 'block'; return;
+  }
+  box.innerHTML =
+    '<div class="ocr-title">📋 인식 결과 — 숫자를 꼭 확인하세요</div>'
+    + row('CTDIvol', r.ctdi != null ? r.ctdi + ' mGy' : '')
+    + row('DLP', r.dlp != null ? r.dlp + ' mGy·cm' : '')
+    + row('부위', r.region ? nm[r.region] : '직접 선택')
+    + '<div class="ocr-actions"><button type="button" class="ocr-apply" onclick="ocrApplyResult()">입력에 적용</button>'
+    + '<button type="button" class="ocr-cancel" onclick="document.getElementById(\'ocrConfirm\').style.display=\'none\'">취소</button></div>'
+    + '<div class="ocr-hint">⚠️ OCR은 오차가 있을 수 있어요. 적용 후 반드시 CTDIvol·DLP 숫자를 확인하세요.</div>';
+  box.style.display = 'block';
+}
+function ocrApplyResult(){
+  const r = _ocrResult; if (!r) return;
+  if (r.ctdi != null) document.getElementById('ctdi').value = r.ctdi;
+  if (r.dlp != null) document.getElementById('dlp').value = r.dlp;
+  if (r.region) ocrSelectRegion(r.region);
+  const cf = document.getElementById('ocrConfirm'); if (cf) cf.style.display = 'none';
+  if (typeof showToast === 'function') showToast('✅ 값을 입력했어요 · 숫자 확인 후 계산하세요');
+}
+
+// ===== DRL 참고범위 모듈 (환자용) — 출처: 질병관리청 CT 진단참고수준 =====
+// DRL은 안전 한계선이 아니라 선량 최적화용 참고 기준(분포 75% 수준). 개정 시 갱신 필요.
+const DRL_ADULT = {
+  head:          { ctdi:64, dlp:1119, label:"두부(비조영)" },
+  neck:          { ctdi:14, dlp:442,  label:"목" },
+  chest:         { ctdi:7,  dlp:297,  label:"흉부" },
+  abdomen:       { ctdi:10, dlp:472,  label:"복부골반(조영)", note:"복부 단독 기준이 없어 복부골반 값을 참고로 사용" },
+  pelvis:        { ctdi:10, dlp:472,  label:"복부골반(조영)", note:"골반 단독 기준이 없어 복부골반 값을 참고로 사용" },
+  abdomen_pelvis:{ ctdi:10, dlp:472,  label:"복부골반(조영)" },
+  spine_cervical:{ ctdi:18, dlp:434,  label:"경추" },
+  spine_lumbar:  { ctdi:18, dlp:601,  label:"요추" },
+  chest_abdomen:null, whole:null, spine_thoracic:null, upper_limb:null, lower_limb:null
+};
+const DRL_PED = {
+  head:   [ {min:0,max:1,ctdi:20,dlp:298},{min:2,max:5,ctdi:24,dlp:405},
+            {min:6,max:10,ctdi:30,dlp:494},{min:11,max:15,ctdi:63,dlp:1088} ],
+  chest:  [ {min:0,max:1,ctdi:3,dlp:45},{min:2,max:5,ctdi:5,dlp:100},
+            {min:6,max:10,ctdi:6,dlp:120} ],
+  abdomen:[ {min:2,max:5,ctdi:6,dlp:180},{min:6,max:10,ctdi:8,dlp:240} ]
+};
+const DRL_PED_ABD = ['abdomen','pelvis','abdomen_pelvis'];
+
+function drlPick(region, age){
+  const isPed = (age != null && age !== '' && age <= 15);
+  if(isPed){
+    const pkey = DRL_PED_ABD.includes(region) ? 'abdomen' : region;
+    const bands = DRL_PED[pkey];
+    if(bands){
+      const b = bands.find(x => age >= x.min && age <= x.max);
+      if(b){
+        const bl = b.min===0 ? '2세 미만' : (b.min+'~'+b.max+'세');
+        const pl = pkey==='abdomen' ? '복부' : (pkey==='head' ? '두부' : '흉부');
+        return { found:true, ctdi:b.ctdi, dlp:b.dlp, label:'소아('+bl+') '+pl, group:'소아' };
+      }
+    }
+    return { noPed:true };
+  }
+  const a = DRL_ADULT[region];
+  if(!a) return null;
+  return { found:true, ctdi:a.ctdi, dlp:a.dlp, label:'성인 '+a.label, note:a.note, group:'성인' };
+}
+function drlMetricRow(name, mine, ref, unit){
+  if(ref == null || mine == null || !(mine > 0)) return '';
+  const ratio = mine / ref, tone = ratio <= 1 ? 'ok' : 'note';
+  const fillPct = Math.min(ratio*100, 180) / 1.8, refPct = 100 / 1.8;
+  return '<div class="drl-metric"><div class="drl-metric-top">'
+    + '<span class="drl-metric-name">'+name+'</span>'
+    + '<span><span class="drl-mine">'+mine+' '+unit+'</span>'
+    + '<span class="drl-ref">참고 '+ref+' '+unit+'</span></span></div>'
+    + '<div class="drl-bar"><div class="drl-fill '+tone+'" style="width:'+fillPct+'%"></div>'
+    + '<div class="drl-ref-line" style="left:'+refPct+'%"></div></div></div>';
+}
+function drlBuildCard(region, ctdi, dlp, age){
+  const d = drlPick(region, age);
+  if(!d || d.noPed){
+    const why = d && d.noPed
+      ? '이 연령대·부위는 국내 소아 CT 참고수준이 별도로 정해져 있지 않아요.'
+      : '이 부위는 국내 CT 참고수준이 별도로 정해져 있지 않아요.';
+    return '<div class="drl-card"><div class="drl-title">📊 국내 검사 선량 참고범위</div>'
+      + '<div class="drl-msg na">'+why+' 입력하신 선량은 그대로 기록·관리하실 수 있습니다 😊</div></div>';
+  }
+  const rMax = Math.max((ctdi>0?ctdi/d.ctdi:0),(dlp>0?dlp/d.dlp:0));
+  let msg, cls;
+  if(rMax <= 1){ cls='ok'; msg='이번 검사는 국내에서 일반적으로 촬영하는 <b>참고 범위 이내</b>예요 👍'; }
+  else if(rMax <= 1.5){ cls='note'; msg='일반적인 참고 범위보다 <b>다소 높게</b> 촬영됐어요. 더 정밀한 영상이 필요했거나 체격 등 개인 조건에 따른 경우가 많으며, 그 자체가 위험을 뜻하지는 않습니다. 궁금한 점은 담당 의료진에게 문의해 보세요.'; }
+  else { cls='note'; msg='이번 검사는 일반적인 참고 범위보다 <b>높은 편</b>이에요. 진단 목적상 필요했을 수 있고 개인 위험과 곧바로 연결되는 값은 아니지만, 반복 검사가 잦다면 담당 의료진과 상의해 보시길 권해요.'; }
+  return '<div class="drl-card"><div class="drl-title">📊 국내 검사 선량 참고범위 '
+    + '<span class="drl-badge">'+d.group+' 기준</span></div>'
+    + '<div class="drl-sub">내 선량을 국내 <b>'+d.label+'</b> 참고수준(DRL)과 비교했어요. '
+    + 'DRL은 안전 한계선이 아니라 <b>선량 최적화를 위한 표준 범위</b>예요.</div>'
+    + drlMetricRow('CTDIvol', ctdi, d.ctdi, 'mGy')
+    + drlMetricRow('DLP', dlp, d.dlp, 'mGy·cm')
+    + '<div class="drl-msg '+cls+'">'+msg+'</div>'
+    + '<div class="drl-foot">출처: 질병관리청 CT 진단참고수준(DRL). '
+    + (d.note ? '※ '+d.note+'. ' : '')
+    + '참고범위는 개인의 건강 위험도를 나타내지 않으며, 의료적 판단을 대체하지 않습니다.</div></div>';
+}
+function renderDRL(region, ctdi, dlp, age){
+  const el = document.getElementById('drlBlock');
+  if(el) el.innerHTML = drlBuildCard(region, ctdi, dlp, age);
+}
+
+
+// ===== 단건 상세 리포트 + 의사 상담용 요약 (인쇄→PDF) =====
+let _reportSnap = null;
+function _rptRegionKo(k){
+  const m={head:'머리',neck:'목',chest:'흉부',abdomen:'복부',pelvis:'골반',chest_abdomen:'흉복부',abdomen_pelvis:'복골반',whole:'전신',spine_cervical:'경추',spine_thoracic:'흉추',spine_lumbar:'요추',upper_limb:'상지',lower_limb:'하지'};
+  return m[k]||k;
+}
+function _rptSexKo(s){ return s==='male'?'남성':(s==='female'?'여성':'-'); }
+function openReport(){
+  const r=_reportSnap;
+  if(!r){ if(typeof showToast==='function') showToast('먼저 유효선량을 계산해 주세요'); return; }
+  const ed=r.ed, xr=Math.round(ed/0.02), yp=(ed/3.0*100).toFixed(0);
+  const d=drlPick(r.region, r.age);
+  let drlMsg='이 부위는 국내 참고수준이 설정돼 있지 않습니다.', drlRefTxt='참고수준 미설정';
+  if(d && !d.noPed){
+    const within = Math.max((r.ctdi>0?r.ctdi/d.ctdi:0),(r.dlp>0?r.dlp/d.dlp:0))<=1;
+    drlMsg = within ? '국내 일반 촬영 참고범위 이내입니다.' : '참고범위보다 다소 높습니다(진단상 필요·체격 등 영향 가능, 개인 위험도 지표 아님).';
+    drlRefTxt = d.label+' — CTDIvol '+d.ctdi+' mGy / DLP '+d.dlp+' mGy·cm';
+  }
+  const ssdeTxt=(r.ssde!=null)?(r.ssde+' mGy'):'—';
+  const cV=(r.ctdi!=null? r.ctdi+' mGy':'—'), dV=(r.dlp!=null? r.dlp+' mGy·cm':'—');
+  const html = `
+  <div class="rpt">
+    <h1>☢️ RadiSafe · CT 방사선량 리포트</h1>
+    <div class="rpt-meta">생성일 ${r.date} · 참고용 추정치 (의료 판단 대체 아님)</div>
+    <div class="rpt-sec">
+      <h2>검사 정보</h2>
+      <div class="rpt-kv"><span>촬영 부위</span><b>${_rptRegionKo(r.region)} CT</b></div>
+      <div class="rpt-kv"><span>CTDIvol</span><b>${cV}</b></div>
+      <div class="rpt-kv"><span>DLP</span><b>${dV}</b></div>
+      <div class="rpt-kv"><span>촬영 횟수</span><b>${r.phases}상</b></div>
+      <div class="rpt-kv"><span>나이 / 성별 / 체중</span><b>${r.age!=null? r.age+'세':'—'} / ${_rptSexKo(r.sex)} / ${r.weight!=null? r.weight+'kg':'—'}</b></div>
+    </div>
+    <div class="rpt-sec">
+      <h2>선량 결과</h2>
+      <div class="rpt-kv"><span>추정 유효선량</span><b>${ed.toFixed(2)} mSv</b></div>
+      <div class="rpt-kv"><span>체격보정선량 SSDE</span><b>${ssdeTxt}</b></div>
+      <div class="rpt-kv"><span>일상 비교</span><b>흉부 X선 ${xr}회 · 연간 자연방사선의 ${yp}%</b></div>
+    </div>
+    <div class="rpt-sec">
+      <h2>국내 참고범위(DRL) 비교</h2>
+      <div class="rpt-kv"><span>기준</span><b>${drlRefTxt}</b></div>
+      <div class="rpt-note">${drlMsg} DRL은 안전 한계선이 아니라 선량 최적화를 위한 참고 기준(분포 75%)입니다.</div>
+    </div>
+    <div class="rpt-sec">
+      <h2>의사 상담용 요약</h2>
+      <table class="rpt-table">
+        <tr><th>검사</th><th>CTDIvol</th><th>DLP</th><th>추정 유효선량</th><th>SSDE</th></tr>
+        <tr><td>${_rptRegionKo(r.region)} CT (${r.phases}상)</td><td>${cV}</td><td>${dV}</td><td class="rpt-hl">${ed.toFixed(2)} mSv</td><td>${ssdeTxt}</td></tr>
+      </table>
+      <div class="rpt-note">※ 유효선량은 EURATOM·ICRP 103 k계수 기반 추정치로, 개인의 암 위험도를 나타내는 값이 아닙니다. 실제 장기선량은 장비·프로토콜에 따라 다릅니다.</div>
+    </div>
+    <div class="rpt-sec">
+      <h2>참고 · 면책</h2>
+      <div class="rpt-note">DRL 출처: 질병관리청 CT 진단참고수준. 본 리포트는 참고용 추정치이며 의료적 판단·진단을 대체하지 않습니다. 검사 필요성과 결과 해석은 반드시 담당 의료진과 상의하세요.</div>
+    </div>
+  </div>
+  <div class="rpt-actions">
+    <button type="button" class="rpt-print" onclick="printReport()">🖨 PDF로 저장 · 인쇄</button>
+    <button type="button" class="rpt-close" onclick="closeReport()">닫기</button>
+  </div>`;
+  document.getElementById('reportView').innerHTML=html;
+  document.body.classList.add('rpt-open');
+  document.getElementById('reportView').style.display='block';
+  window.scrollTo(0,0);
+}
+function closeReport(){ document.body.classList.remove('rpt-open'); document.getElementById('reportView').style.display='none'; }
+function printReport(){ window.print(); }
+
+
+// ===== 2 가족 프로필 · 다중 검사종류 · 평생 누적 =====
+const EXAM_TYPES = [
+  {key:'xray_chest',  name:'흉부 X선',       dose:0.02},
+  {key:'xray_abd',    name:'복부 X선',       dose:0.7},
+  {key:'mammo',       name:'유방촬영술',     dose:0.4},
+  {key:'dental_intra',name:'치과 구내촬영',  dose:0.005},
+  {key:'dental_pano', name:'치과 파노라마',  dose:0.01},
+  {key:'dental_cbct', name:'치과 CBCT',      dose:0.05},
+  {key:'dexa',        name:'골밀도(DEXA)',   dose:0.001},
+  {key:'petct',       name:'PET-CT(전신)',   dose:14},
+  {key:'ccta',        name:'관상동맥 CT조영',dose:12},
+  {key:'angio',       name:'혈관조영술',     dose:5},
+  {key:'fluoro',      name:'투시(위장조영)', dose:4}
+];
+function migrateProfiles(){
+  if (!state.profiles){
+    state.profiles = [{ id:'self', name:'본인', history: (state.history || []) }];
+    state.activeProfile = 'self';
+  }
+  if (!state.activeProfile || !state.profiles.find(function(p){return p.id===state.activeProfile;}))
+    state.activeProfile = state.profiles[0].id;
+}
+function curProfile(){ return state.profiles.find(function(p){return p.id===state.activeProfile;}) || state.profiles[0]; }
+function curHistory(){ return curProfile().history; }
+function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+function switchProfile(id){ state.activeProfile=id; saveState(); renderRecords(); }
+function addProfilePrompt(){
+  rsPrompt('가족 구성원 이름을 입력하세요 (예: 첫째, 어머니)', function(val){
+    const name=(val||'').trim(); if(!name) return;
+    const id='p'+Date.now();
+    state.profiles.push({id:id, name:name, history:[]});
+    state.activeProfile=id; saveState(); renderRecords();
+  });
+}
+function deleteProfile(id){
+  if(state.profiles.length<=1){ if(typeof showToast==='function') showToast('최소 1명은 있어야 해요'); return; }
+  rsConfirm('이 프로필과 기록을 삭제할까요?', function(){
+    state.profiles=state.profiles.filter(function(p){return p.id!==id;});
+    state.activeProfile=state.profiles[0].id; saveState(); renderRecords();
+  });
+}
+function addQuickExam(key){
+  const t=EXAM_TYPES.find(function(x){return x.key===key;}); if(!t) return;
+  curHistory().unshift({ ed:t.dose, label:t.name, type:key, date:new Date().toISOString().split('T')[0] });
+  saveState(); renderRecords();
+  if(typeof showToast==='function') showToast('✅ '+t.name+' 기록을 추가했어요');
+}
+function renderProfiles(){
+  const el=document.getElementById('profileBar'); if(!el) return;
+  el.innerHTML = state.profiles.map(function(p){
+    return '<button type="button" class="prof-pill'+(p.id===state.activeProfile?' active':'')
+      +'" onclick="switchProfile(\''+p.id+'\')" ondblclick="deleteProfile(\''+p.id+'\')">'+escapeHtml(p.name)+'</button>';
+  }).join('') + '<button type="button" class="prof-add" onclick="addProfilePrompt()">+ 가족 추가</button>';
+}
+function renderQuickExams(){
+  const el=document.getElementById('quickExamBtns'); if(!el) return;
+  el.innerHTML = EXAM_TYPES.map(function(t){
+    return '<button type="button" class="qx-btn" onclick="addQuickExam(\''+t.key+'\')">'+t.name+'<span>대표 '+t.dose+' mSv</span></button>';
+  }).join('');
+}
+function renderLifetime(lifetime, count){
+  const el=document.getElementById('lifetimeBox'); if(!el) return;
+  const bg=(lifetime/3.0).toFixed(1);
+  el.innerHTML =
+    '<div class="lt-total">'+lifetime.toFixed(2)+' <span>mSv</span></div>'
+    +'<div class="lt-sub">누적 기록 '+count+'건 · 연간 자연방사선 약 '+bg+'년치에 해당</div>'
+    +'<div class="lt-note">※ 의료 검사 누적치이며, 자연방사선·항공 등 생활 노출은 포함하지 않았습니다. 누적선량은 개인 위험도를 직접 나타내지 않습니다.</div>';
+}
+
+
+// ===== 인앱 확인/입력 모달 (웹뷰에서 native confirm/prompt 미동작 대응) =====
+let _rsCb = null, _rsMode = 'confirm';
+function rsConfirm(msg, onYes){
+  _rsCb = onYes; _rsMode = 'confirm';
+  document.getElementById('rsModalMsg').textContent = msg;
+  document.getElementById('rsModalInput').style.display = 'none';
+  document.getElementById('rsModal').classList.add('active');
+}
+function rsPrompt(msg, onOk, placeholder){
+  _rsCb = onOk; _rsMode = 'prompt';
+  document.getElementById('rsModalMsg').textContent = msg;
+  const inp = document.getElementById('rsModalInput');
+  inp.style.display = 'block'; inp.value = ''; inp.placeholder = placeholder || '';
+  document.getElementById('rsModal').classList.add('active');
+  setTimeout(function(){ try{inp.focus();}catch(e){} }, 50);
+}
+function rsModalOk(){
+  const mode = _rsMode, cb = _rsCb;
+  const val = document.getElementById('rsModalInput').value;
+  rsModalClose();
+  if (cb){ if (mode === 'prompt') cb(val); else cb(); }
+}
+function rsModalClose(){ document.getElementById('rsModal').classList.remove('active'); _rsCb = null; }
 
 function renderResult(ed, region) {
   const card = document.getElementById('resultCard');
@@ -952,21 +1409,22 @@ function renderResult(ed, region) {
 }
 
 function deleteHistory(i) {
-  state.history.splice(i, 1);
+  curHistory().splice(i, 1);
   saveState(); renderRecords();
   showToast('🗑 기록 1건을 지웠습니다');
 }
 function clearHistory() {
-  if (!state.history.length) { showToast('지울 기록이 없습니다'); return; }
-  if (confirm('모든 기록을 지울까요? 되돌릴 수 없습니다.')) {
-    state.history = [];
+  if (!curHistory().length) { showToast('지울 기록이 없습니다'); return; }
+  rsConfirm('모든 기록을 지울까요? 되돌릴 수 없습니다.', function(){
+    curProfile().history = [];
     saveState(); renderRecords();
     showToast('🗑 모든 기록을 지웠습니다');
-  }
+  });
 }
 function saveToHistory() {
   if (!currentDose) return;
-  state.history.unshift(currentDose);
+  currentDose.type = 'ct';
+  curHistory().unshift(currentDose);
   saveState();
   renderRecords();
   showToast('✅ 기록에 저장했습니다');
@@ -985,7 +1443,11 @@ function renderRecords() {
   document.getElementById('recordsPremium').style.display = 'block';
   document.getElementById('recordsYear').textContent = new Date().getFullYear();
 
-  const total = state.history.reduce((s, h) => s + h.ed, 0);
+  renderProfiles(); renderQuickExams();
+  const _h = curHistory();
+  const _yr = new Date().getFullYear();
+  const total = _h.filter(function(x){ return String(x.date||'').slice(0,4) == _yr; }).reduce((s, h) => s + h.ed, 0);
+  renderLifetime(_h.reduce((s, h) => s + h.ed, 0), _h.length);
   const ref = 20;
   const pct = Math.min(total / ref * 100, 100);
   document.getElementById('annualSummary').textContent = `${total.toFixed(2)} / ${ref} mSv`;
@@ -996,13 +1458,13 @@ function renderRecords() {
     `올해 추가 안전 선량: <strong>${Math.max(ref - total, 0).toFixed(2)} mSv</strong>`;
 
   const list = document.getElementById('historyList');
-  if (!state.history.length) {
+  if (!_h.length) {
     list.innerHTML = '<div style="text-align:center;padding:24px;color:var(--text2);font-size:14px;">아직 저장된 기록이 없습니다.<br>계산기에서 결과를 저장해보세요 😊</div>';
     return;
   }
-  list.innerHTML = state.history.map((h, i) =>
+  list.innerHTML = _h.map((h, i) =>
     `<div class="history-item">
-      <div><div class="history-region">${REGION_NAMES[h.region]||h.region}</div><div class="history-date">${h.date}${h.ssde ? ' · SSDE ' + h.ssde.toFixed(1) + ' mGy' : ''}</div></div>
+      <div><div class="history-region">${h.label || REGION_NAMES[h.region] || h.region}</div><div class="history-date">${h.date}${h.ssde ? ' · SSDE ' + h.ssde.toFixed(1) + ' mGy' : ''}</div></div>
       <div style="display:flex;align-items:center;gap:10px;">
         <div class="history-dose">${h.ed.toFixed(2)} mSv</div>
         <button onclick="deleteHistory(${i})" title="이 기록 삭제" style="border:none;background:#fdecea;color:var(--danger);width:28px;height:28px;border-radius:8px;font-size:14px;font-weight:700;cursor:pointer;">✕</button>
@@ -1211,5 +1673,16 @@ if (state.isPremium) {
   document.getElementById('headerPremiumBtn').style.background = 'rgba(255,255,255,0.2)';
 }
 </script>
+<div id="reportView"></div>
+<div id="rsModal" class="rs-modal">
+  <div class="rs-modal-box">
+    <div id="rsModalMsg" class="rs-modal-msg"></div>
+    <input id="rsModalInput" class="rs-modal-input" type="text" style="display:none" onkeydown="if(event.key==='Enter')rsModalOk()">
+    <div class="rs-modal-actions">
+      <button type="button" class="rs-modal-cancel" onclick="rsModalClose()">취소</button>
+      <button type="button" class="rs-modal-ok" onclick="rsModalOk()">확인</button>
+    </div>
+  </div>
+</div>
 </body>
 </html>
