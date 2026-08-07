@@ -141,13 +141,13 @@ header {
 .form-group.full { grid-column: 1 / -1; }
 label { font-size: 12px; font-weight: 600; color: var(--text2); }
 label .unit { font-weight: 400; color: #aaa; }
-input[type="number"], select {
+input[type="number"], input[type="text"], select {
   border: 1.5px solid var(--border); border-radius: 10px;
   padding: 12px 14px; font-size: 16px; color: var(--text);
   background: white; transition: border-color 0.2s; width: 100%;
   -webkit-appearance: none; appearance: none;
 }
-input[type="number"]:focus, select:focus {
+input[type="number"]:focus, input[type="text"]:focus, select:focus {
   outline: none; border-color: var(--primary);
   box-shadow: 0 0 0 3px var(--primary-light);
 }
