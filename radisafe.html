@@ -459,6 +459,21 @@ select {
     .rs-modal-cancel{flex:1;padding:12px;border:1px solid #e6ebf0;border-radius:10px;background:#fff;color:#666;font-weight:600;cursor:pointer}
     .rs-modal-ok{flex:1;padding:12px;border:0;border-radius:10px;background:var(--primary,#1a6fbf);color:#fff;font-weight:700;cursor:pointer}
 
+  
+    .prof-age-btn{margin-left:4px;padding:3px 10px;border:1px solid var(--primary,#1a6fbf);border-radius:14px;background:#fff;color:var(--primary,#1a6fbf);font-size:12px;font-weight:600;cursor:pointer}
+
+  
+    .rpt-summary{background:var(--primary-light,#eaf3fb);border:1px solid #cfe2f5;border-radius:12px;padding:14px 16px;margin:14px 0 4px;font-size:15px;line-height:1.6;color:#1f2a37}
+    .rpt-summary b{color:var(--primary,#1a6fbf)}
+
+  
+    /* ===== 필수/선택 입력 구분 ===== */
+    .req-badge{display:inline-block;margin-left:6px;font-size:10px;font-weight:800;color:#fff;background:#e5484d;padding:1px 7px;border-radius:10px;vertical-align:middle}
+    .opt-badge{display:inline-block;margin-left:6px;font-size:10px;font-weight:600;color:#8890a0;background:#eef2f6;padding:1px 7px;border-radius:10px;vertical-align:middle}
+    .req-input{box-shadow:0 0 0 2px #e5484d !important;border-radius:8px}
+    .req-region .region-wrap{box-shadow:0 0 0 2px #e5484d;border-radius:12px}
+    .req-legend{font-size:12px;color:var(--text2);margin:0 0 12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
+
   </style>
 </head>
 <body>
@@ -481,7 +496,7 @@ select {
 <div class="page active" id="page-calc">
   <div class="hero">
     <h1>CT 방사선량,<br>직접 확인하세요</h1>
-    <p>CTDI·DLP 값을 입력하면 실제 유효선량과<br>안전 여부를 알려드립니다</p>
+    <p>CTDI·DLP 값을 입력하면 위험 반영 선량과<br>안전 여부를 알려드립니다</p>
   </div>
 
   <div class="container">
@@ -490,7 +505,43 @@ select {
       <div class="card-title">🩻 촬영 정보 입력 <span class="badge badge-free">무료</span></div>
 
       <div class="form-group" style="margin-bottom:16px;">
-        <label>촬영 부위</label>
+        <label>검사 종류 <span class="req-badge">필수</span></label>
+        <select id="examType" class="req-input" onchange="onExamTypeChange()">
+          <option value="ct">CT (CTDIvol·DLP 입력)</option>
+          <option value="xray_chest">흉부 X선</option>
+          <option value="xray_abd">복부 X선</option>
+          <option value="mammo">유방촬영술</option>
+          <option value="dental_intra">치과 구내촬영</option>
+          <option value="dental_pano">치과 파노라마</option>
+          <option value="dental_cbct">치과 CBCT</option>
+          <option value="dexa">골밀도(DEXA)</option>
+          <option value="petct">PET-CT(전신)</option>
+          <option value="ccta">관상동맥 CT조영</option>
+          <option value="angio">혈관조영술</option>
+          <option value="fluoro">투시(위장조영)</option>
+          <option value="other">기타 (직접 입력)</option>
+        </select>
+      </div>
+      <div id="nonCtBox" style="display:none;">
+        <div class="card" style="border:1px solid #e6ebf0;">
+          <div id="otherInputs" style="display:none;margin-bottom:12px;">
+            <div class="form-group">
+              <label>검사 이름 <span class="req-badge">필수</span></label>
+              <input type="text" id="otherName" placeholder="예: 골밀도 정밀검사">
+            </div>
+            <div class="form-group">
+              <label>대표 유효선량 <span class="unit">(mSv)</span> <span class="req-badge">필수</span></label>
+              <input type="number" id="otherDose" inputmode="decimal" placeholder="예: 0.5" min="0" step="0.001">
+            </div>
+            <button class="btn-calc" onclick="renderOther()">📊 조회하기</button>
+          </div>
+          <div id="nonCtInfo"></div>
+          <button class="btn-calc" onclick="saveNonCtExam()" style="margin-top:12px;">💾 이 검사 기록에 저장</button>
+        </div>
+      </div>
+      <div id="ctInputs">
+      <div class="form-group req-region" style="margin-bottom:16px;">
+        <label>촬영 부위 <span class="req-badge">필수</span></label>
         <div class="region-wrap">
         <button type="button" class="region-arrow left" onclick="scrollRegions(-1)" aria-label="이전 부위 보기">◀</button>
         <div class="region-scroll" id="regionScroll">
@@ -520,21 +571,22 @@ select {
         <div id="ocrStatus" class="ocr-status" style="display:none"></div>
         <div id="ocrConfirm" class="ocr-confirm" style="display:none"></div>
       </div>
+      <div class="req-legend"><span><span class="req-badge">필수</span> 반드시 입력</span><span><span class="opt-badge">선택</span> 있으면 더 정확</span></div>
       <div class="form-grid">
         <div class="form-group">
-          <label>CTDIvol <span class="unit">(mGy)</span></label>
-          <input type="number" id="ctdi" inputmode="decimal" placeholder="예: 12.5" min="0" step="0.1">
+          <label>CTDIvol <span class="unit">(mGy)</span> <span class="req-badge">필수</span></label>
+          <input class="req-input" type="number" id="ctdi" inputmode="decimal" placeholder="예: 12.5" min="0" step="0.1">
         </div>
         <div class="form-group">
-          <label>DLP <span class="unit">(mGy·cm)</span></label>
-          <input type="number" id="dlp" inputmode="decimal" placeholder="예: 450" min="0" step="1">
+          <label>DLP <span class="unit">(mGy·cm)</span> <span class="req-badge">필수</span></label>
+          <input class="req-input" type="number" id="dlp" inputmode="decimal" placeholder="예: 450" min="0" step="1">
         </div>
         <div class="form-group">
-          <label>나이 <span class="unit">(세)</span></label>
+          <label>나이 <span class="unit">(세)</span> <span class="opt-badge">선택</span></label>
           <input type="number" id="age" inputmode="numeric" placeholder="예: 45" min="0" max="120">
         </div>
         <div class="form-group">
-          <label>성별</label>
+          <label>성별 <span class="opt-badge">선택</span></label>
           <select id="sex">
             <option value="neutral">선택 안 함</option>
             <option value="male">남성</option>
@@ -542,17 +594,8 @@ select {
           </select>
         </div>
         <div class="form-group">
-          <label>체중 <span class="unit">(kg)</span></label>
+          <label>체중 <span class="unit">(kg)</span> <span class="opt-badge">선택</span></label>
           <input type="number" id="weight" inputmode="decimal" placeholder="예: 65" min="1" max="300">
-        </div>
-        <div class="form-group">
-          <label>촬영 횟수 (상)</label>
-          <select id="phases">
-            <option value="1">1회 (단상)</option>
-            <option value="2">2회 (2상)</option>
-            <option value="3">3회 (3상)</option>
-            <option value="4">4회 이상</option>
-          </select>
         </div>
       </div>
 
@@ -561,7 +604,7 @@ select {
         <div class="ssde-section-title">📐 SSDE 체격 보정 (선택)</div>
         <div class="ssde-section-hint">
           환자의 AP·LAT 지름을 입력하면 체격 보정 선량(SSDE)이 함께 계산되어 더 정확합니다.
-          선량보고서에 SSDE 값이 있으면 직접 입력하세요. <strong>비워두면 기존과 동일하게 유효선량만 계산됩니다.</strong>
+          선량보고서에 SSDE 값이 있으면 직접 입력하세요. <strong>비워두면 기존과 동일하게 위험 반영 선량만 계산됩니다.</strong>
         </div>
         <div class="form-grid">
           <div class="form-group">
@@ -582,7 +625,8 @@ select {
 
     <!-- Sticky calc button -->
     <div class="calc-sticky">
-      <button class="btn-calc" onclick="calculate()">📊 유효선량 계산하기</button>
+      <button class="btn-calc" onclick="calculate()">📊 선량 계산하기</button>
+    </div>
     </div>
 
     <!-- Result card (hidden until calc) -->
@@ -590,7 +634,7 @@ select {
       <div class="card-title">📈 계산 결과 <span class="badge badge-free">무료</span></div>
       <div class="result-dose">
         <div><span class="dose-value" id="doseValue">—</span><span class="dose-unit"> mSv</span></div>
-        <div class="dose-label">유효선량 (Effective Dose)</div>
+        <div class="dose-label">위험 반영 선량 <span style="font-size:10px;color:#8890a0;font-weight:400;">나이·성별·체격 보정</span></div>
         <div class="dose-equiv" id="doseEquiv"></div>
       </div>
       <div class="ssde-result" id="ssdeBlock" style="display:none;"></div>
@@ -620,7 +664,7 @@ select {
     </div>
 
     <div class="disclaimer">
-      ⚠️ <strong>참고용 추정치:</strong> EURATOM 및 ICRP 103 기준 계산기입니다. SSDE는 AAPM Report 204(몸통 32cm 팬텀)·293(머리 16cm 팬텀) 변환계수를 사용한 체격 보정 선량 지표(mGy)로, 유효선량(mSv)과는 다른 개념입니다. 실제 선량은 장비·프로토콜에 따라 다를 수 있으며 의료적 판단을 대체하지 않습니다.
+      ⚠️ <strong>참고용 추정치:</strong> EURATOM 및 ICRP 103 기준 계산기입니다. 표시되는 '위험 반영 선량'은 ICRP 103 유효선량에 나이·성별·체격 민감도를 보정한 추정치로, 표준 유효선량과는 다른 값입니다. SSDE는 AAPM Report 204(몸통 32cm 팬텀)·293(머리 16cm 팬텀) 변환계수를 사용한 체격 보정 선량 지표(mGy)로, 유효선량(mSv)과는 다른 개념입니다. 실제 선량은 장비·프로토콜에 따라 다를 수 있으며 의료적 판단을 대체하지 않습니다.
     </div>
   </div>
 </div>
@@ -638,7 +682,7 @@ select {
           <div class="card">
             <div class="card-title">📅 2026년 누적 선량 <span class="badge badge-premium">✨ 프리미엄</span></div>
             <div class="annual-bar-wrap">
-              <div class="annual-bar-label"><span>누적 유효선량</span><span>12.4 / 20 mSv</span></div>
+              <div class="annual-bar-label"><span>누적 위험 반영 선량</span><span>12.4 / 20 mSv</span></div>
               <div class="annual-bar-track"><div class="annual-bar-fill" style="width:62%">62%</div></div>
             </div>
             <div style="font-size:13px;color:var(--text2);margin-top:10px;">💡 추가로 안전하게 받을 수 있는 선량: <strong>7.6 mSv</strong></div>
@@ -661,11 +705,12 @@ select {
       <div class="card">
         <div class="card-title">👥 프로필 <span style="font-size:11px;color:var(--text2);font-weight:400;">(가족 추가 · 이름 더블클릭 삭제)</span></div>
         <div id="profileBar" class="prof-bar"></div>
+        <div id="profileAge" style="margin-top:10px;font-size:13px;color:var(--text2);"></div>
       </div>
       <div class="card">
-        <div class="card-title">📅 <span id="recordsYear">2026</span>년 누적 선량 <span class="badge badge-active">✅ 프리미엄</span></div>
+        <div class="card-title">📅 <span id="recordsYear">2026</span>년 누적 선량</div>
         <div class="annual-bar-wrap">
-          <div class="annual-bar-label"><span>누적 유효선량</span><span id="annualSummary">0 / 20 mSv</span></div>
+          <div class="annual-bar-label"><span>누적 위험 반영 선량</span><span id="annualSummary">0 / 20 mSv</span></div>
           <div class="annual-bar-track"><div class="annual-bar-fill" id="annualBarFill" style="width:0%">0%</div></div>
         </div>
         <div style="font-size:13px;color:var(--text2);margin-top:10px;" id="annualRemaining">올해 추가 안전 선량: <strong>20 mSv</strong></div>
@@ -958,12 +1003,13 @@ function calculate() {
   const age    = parseInt(document.getElementById('age').value) || null;
   const sex    = document.getElementById('sex').value;
   const weight = parseFloat(document.getElementById('weight').value) || null;
-  const phases = parseInt(document.getElementById('phases').value) || 1;
+  const phases = 1; // 촬영 횟수(상) 입력 제거 — 선량보고서의 Total DLP를 그대로 사용
   const ap     = parseFloat(document.getElementById('apDiam').value) || null;
   const lat    = parseFloat(document.getElementById('latDiam').value) || null;
   const ssdeManual = parseFloat(document.getElementById('ssdeManual').value) || null;
 
   if (!selectedRegion) { showToast('촬영 부위를 선택해 주세요'); return; }
+  if (!ctdi || ctdi <= 0) { showToast('CTDIvol 값을 입력해 주세요'); return; }
   if (!dlp || dlp <= 0) { showToast('DLP 값을 입력해 주세요'); return; }
 
   const ed = Math.round(
@@ -986,7 +1032,7 @@ function calculate() {
 
   renderResult(ed, selectedRegion);
   renderDRL(selectedRegion, ctdi, dlp, age);
-  _reportSnap = { ed: ed, region: selectedRegion, ctdi: ctdi, dlp: dlp, age: age, sex: sex, weight: weight, phases: phases, ssde: (ssdeInfo ? Math.round(ssdeInfo.ssde*10)/10 : null), date: new Date().toISOString().split('T')[0] };
+  _reportSnap = { ed: ed, edPhysical: Math.round(dlp * K_FACTORS[selectedRegion] * phases * sizeCorrection(weight) * 100)/100, region: selectedRegion, ctdi: ctdi, dlp: dlp, age: age, sex: sex, weight: weight, phases: phases, ssde: (ssdeInfo ? Math.round(ssdeInfo.ssde*10)/10 : null), date: new Date().toISOString().split('T')[0] };
   renderSSDE(ssdeInfo, ctdi);
 }
 
@@ -1189,10 +1235,27 @@ function _rptRegionKo(k){
   return m[k]||k;
 }
 function _rptSexKo(s){ return s==='male'?'남성':(s==='female'?'여성':'-'); }
+function _rptPlainSummary(r){
+  const phys=(r.edPhysical!=null?r.edPhysical:r.ed);
+  const days=phys/3.0*365;
+  let nat;
+  if(days<1) nat='하루가 안 되는 기간에';
+  else if(days<30) nat='약 '+Math.round(days)+'일 동안';
+  else if(days<365) nat='약 '+Math.max(1,Math.round(days/30))+'개월 동안';
+  else nat='약 '+(days/365).toFixed(1)+'년 동안';
+  const d=drlPick(r.region,r.age);
+  let range='기록으로 남겨두면 되니';
+  if(d && !d.noPed){
+    const within=Math.max((r.ctdi>0?r.ctdi/d.ctdi:0),(r.dlp>0?r.dlp/d.dlp:0))<=1;
+    range=within?'일반적인 검사 범위 이내이니':'진단에 필요해 다소 높게 촬영된 편이니';
+  }
+  return '이번 검사로 받은 방사선은 자연에서 '+nat+' 받는 양 정도이고, '+range+', 궁금한 점은 담당 의료진과 상의하세요.';
+}
 function openReport(){
   const r=_reportSnap;
-  if(!r){ if(typeof showToast==='function') showToast('먼저 유효선량을 계산해 주세요'); return; }
+  if(!r){ if(typeof showToast==='function') showToast('먼저 선량을 계산해 주세요'); return; }
   const ed=r.ed, xr=Math.round(ed/0.02), yp=(ed/3.0*100).toFixed(0);
+  const edPhys=(r.edPhysical!=null?r.edPhysical:ed);
   const d=drlPick(r.region, r.age);
   let drlMsg='이 부위는 국내 참고수준이 설정돼 있지 않습니다.', drlRefTxt='참고수준 미설정';
   if(d && !d.noPed){
@@ -1206,17 +1269,18 @@ function openReport(){
   <div class="rpt">
     <h1>☢️ RadiSafe · CT 방사선량 리포트</h1>
     <div class="rpt-meta">생성일 ${r.date} · 참고용 추정치 (의료 판단 대체 아님)</div>
+    <div class="rpt-summary">💡 <b>한 줄 요약</b><br>${_rptPlainSummary(r)}</div>
     <div class="rpt-sec">
       <h2>검사 정보</h2>
       <div class="rpt-kv"><span>촬영 부위</span><b>${_rptRegionKo(r.region)} CT</b></div>
       <div class="rpt-kv"><span>CTDIvol</span><b>${cV}</b></div>
       <div class="rpt-kv"><span>DLP</span><b>${dV}</b></div>
-      <div class="rpt-kv"><span>촬영 횟수</span><b>${r.phases}상</b></div>
       <div class="rpt-kv"><span>나이 / 성별 / 체중</span><b>${r.age!=null? r.age+'세':'—'} / ${_rptSexKo(r.sex)} / ${r.weight!=null? r.weight+'kg':'—'}</b></div>
     </div>
     <div class="rpt-sec">
       <h2>선량 결과</h2>
-      <div class="rpt-kv"><span>추정 유효선량</span><b>${ed.toFixed(2)} mSv</b></div>
+      <div class="rpt-kv"><span>표준 유효선량 (물리적 추정)</span><b>${edPhys.toFixed(2)} mSv</b></div>
+      <div class="rpt-kv"><span>위험 반영 선량 (나이·성별 보정)</span><b>${ed.toFixed(2)} mSv</b></div>
       <div class="rpt-kv"><span>체격보정선량 SSDE</span><b>${ssdeTxt}</b></div>
       <div class="rpt-kv"><span>일상 비교</span><b>흉부 X선 ${xr}회 · 연간 자연방사선의 ${yp}%</b></div>
     </div>
@@ -1228,10 +1292,10 @@ function openReport(){
     <div class="rpt-sec">
       <h2>의사 상담용 요약</h2>
       <table class="rpt-table">
-        <tr><th>검사</th><th>CTDIvol</th><th>DLP</th><th>추정 유효선량</th><th>SSDE</th></tr>
-        <tr><td>${_rptRegionKo(r.region)} CT (${r.phases}상)</td><td>${cV}</td><td>${dV}</td><td class="rpt-hl">${ed.toFixed(2)} mSv</td><td>${ssdeTxt}</td></tr>
+        <tr><th>검사</th><th>CTDIvol</th><th>DLP</th><th>표준 mSv</th><th>위험반영 mSv</th><th>SSDE</th></tr>
+        <tr><td>${_rptRegionKo(r.region)} CT</td><td>${cV}</td><td>${dV}</td><td>${edPhys.toFixed(2)}</td><td class="rpt-hl">${ed.toFixed(2)}</td><td>${ssdeTxt}</td></tr>
       </table>
-      <div class="rpt-note">※ 유효선량은 EURATOM·ICRP 103 k계수 기반 추정치로, 개인의 암 위험도를 나타내는 값이 아닙니다. 실제 장기선량은 장비·프로토콜에 따라 다릅니다.</div>
+      <div class="rpt-note">※ '표준 유효선량'은 ICRP 103 k계수·체격 보정 기반의 물리적 추정치이고, '위험 반영 선량'은 여기에 나이·성별 민감도를 추가 반영한 값입니다. 어느 쪽도 개인 암 위험도를 확정하지 않으며, 실제 장기선량은 장비·프로토콜에 따라 다릅니다.</div>
     </div>
     <div class="rpt-sec">
       <h2>참고 · 면책</h2>
@@ -1279,12 +1343,24 @@ function curHistory(){ return curProfile().history; }
 function escapeHtml(s){ return (s||'').replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
 function switchProfile(id){ state.activeProfile=id; saveState(); renderRecords(); }
 function addProfilePrompt(){
+  if (state.profiles.length >= 5) { if(typeof showToast==='function') showToast('프로필은 최대 5개까지 만들 수 있어요'); return; }
   rsPrompt('가족 구성원 이름을 입력하세요 (예: 첫째, 어머니)', function(val){
     const name=(val||'').trim(); if(!name) return;
-    const id='p'+Date.now();
-    state.profiles.push({id:id, name:name, history:[]});
-    state.activeProfile=id; saveState(); renderRecords();
+    rsPrompt(name+'님의 나이를 입력하세요 (숫자 · 모르면 비우기)', function(av){
+      const age=(av!=null && av!=='' && !isNaN(parseInt(av,10))) ? parseInt(av,10) : null;
+      const id='p'+Date.now();
+      state.profiles.push({id:id, name:name, age:age, history:[]});
+      state.activeProfile=id; saveState(); renderRecords();
+    }, '예: 7');
   });
+}
+function setProfileAge(){
+  const p=curProfile();
+  rsPrompt(p.name+'님의 나이를 입력하세요 (숫자)', function(av){
+    const age=(av!=null && av!=='' && !isNaN(parseInt(av,10))) ? parseInt(av,10) : null;
+    p.age=age; saveState(); renderRecords();
+    if(typeof showToast==='function') showToast(age!=null?('나이 '+age+'세로 설정했어요'):'나이를 비웠어요');
+  }, '예: 7');
 }
 function deleteProfile(id){
   if(state.profiles.length<=1){ if(typeof showToast==='function') showToast('최소 1명은 있어야 해요'); return; }
@@ -1295,16 +1371,26 @@ function deleteProfile(id){
 }
 function addQuickExam(key){
   const t=EXAM_TYPES.find(function(x){return x.key===key;}); if(!t) return;
-  curHistory().unshift({ ed:t.dose, label:t.name, type:key, date:new Date().toISOString().split('T')[0] });
+  const age = curProfile().age;
+  const factor = (typeof ageSensitivity==='function') ? ageSensitivity(age) : 1;
+  const dose = Math.round(t.dose*factor*1000)/1000;
+  curHistory().unshift({ ed:dose, baseDose:t.dose, ageAtRecord:(age!=null?age:null), label:t.name, type:key, date:new Date().toISOString().split('T')[0] });
   saveState(); renderRecords();
-  if(typeof showToast==='function') showToast('✅ '+t.name+' 기록을 추가했어요');
+  if(typeof showToast==='function') showToast('✅ '+t.name+(age!=null?(' ('+age+'세 반영)'):'')+' 기록 추가');
 }
 function renderProfiles(){
   const el=document.getElementById('profileBar'); if(!el) return;
   el.innerHTML = state.profiles.map(function(p){
     return '<button type="button" class="prof-pill'+(p.id===state.activeProfile?' active':'')
       +'" onclick="switchProfile(\''+p.id+'\')" ondblclick="deleteProfile(\''+p.id+'\')">'+escapeHtml(p.name)+'</button>';
-  }).join('') + '<button type="button" class="prof-add" onclick="addProfilePrompt()">+ 가족 추가</button>';
+  }).join('') + (state.profiles.length < 5 ? '<button type="button" class="prof-add" onclick="addProfilePrompt()">+ 가족 추가</button>' : '<span style="font-size:11px;color:#9aa3b0;align-self:center;padding:8px;">최대 5개</span>');
+  const ageEl=document.getElementById('profileAge');
+  if(ageEl){
+    const cp=curProfile();
+    ageEl.innerHTML = '현재 프로필 나이: <b>'+(cp.age!=null?cp.age+'세':'미설정')+'</b> '
+      +'<button type="button" class="prof-age-btn" onclick="setProfileAge()">'+(cp.age!=null?'수정':'설정')+'</button>'
+      +(cp.age!=null?'':' <span style="color:#8890a0;font-size:11px;">설정하면 X선·CT 기록에 나이가 반영돼요</span>');
+  }
 }
 function renderQuickExams(){
   const el=document.getElementById('quickExamBtns'); if(!el) return;
@@ -1318,7 +1404,37 @@ function renderLifetime(lifetime, count){
   el.innerHTML =
     '<div class="lt-total">'+lifetime.toFixed(2)+' <span>mSv</span></div>'
     +'<div class="lt-sub">누적 기록 '+count+'건 · 연간 자연방사선 약 '+bg+'년치에 해당</div>'
+    + _trendSVG()
     +'<div class="lt-note">※ 의료 검사 누적치이며, 자연방사선·항공 등 생활 노출은 포함하지 않았습니다. 누적선량은 개인 위험도를 직접 나타내지 않습니다.</div>';
+}
+// 누적선량 추이 그래프 (순수 SVG · 프리미엄)
+function _trendSVG(){
+  const h = (typeof curHistory==='function') ? curHistory().slice() : [];
+  if(h.length < 2) return '<div style="font-size:12px;color:#9aa3b0;margin-top:12px;">기록이 2건 이상 쌓이면 누적 추이 그래프가 표시돼요.</div>';
+  h.sort(function(a,b){ return String(a.date||'').localeCompare(String(b.date||'')); });
+  let cum=0; const pts=h.map(function(r){ cum+=(r.ed||0); return {date:r.date, cum:cum}; });
+  const maxY=cum||1;
+  const W=300, H=120, padL=8, padR=8, padT=10, padB=18, n=pts.length;
+  const x=function(i){ return padL + (W-padL-padR) * (n===1?0:(i/(n-1))); };
+  const y=function(v){ return padT + (H-padT-padB) * (1 - v/maxY); };
+  let line='';
+  pts.forEach(function(p,i){ line+=(i===0?'M':'L')+x(i).toFixed(1)+' '+y(p.cum).toFixed(1)+' '; });
+  let area='M'+x(0).toFixed(1)+' '+y(0).toFixed(1)+' ';
+  pts.forEach(function(p,i){ area+='L'+x(i).toFixed(1)+' '+y(p.cum).toFixed(1)+' '; });
+  area+='L'+x(n-1).toFixed(1)+' '+y(0).toFixed(1)+' Z';
+  let dots='';
+  pts.forEach(function(p,i){ dots+='<circle cx="'+x(i).toFixed(1)+'" cy="'+y(p.cum).toFixed(1)+'" r="2.5" fill="#1a6fbf"/>'; });
+  const first=String(pts[0].date||''), last=String(pts[n-1].date||'');
+  return '<div style="margin-top:14px;">'
+    +'<div style="font-size:12px;color:var(--text2,#667);margin-bottom:6px;">📈 누적선량 추이</div>'
+    +'<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:auto;overflow:visible;">'
+    +'<path d="'+area+'" fill="rgba(26,111,191,0.12)"/>'
+    +'<path d="'+line+'" fill="none" stroke="#1a6fbf" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>'
+    +dots
+    +'<text x="'+x(0).toFixed(1)+'" y="'+(H-4)+'" font-size="9" fill="#9aa3b0">'+first+'</text>'
+    +'<text x="'+x(n-1).toFixed(1)+'" y="'+(H-4)+'" font-size="9" fill="#9aa3b0" text-anchor="end">'+last+'</text>'
+    +'<text x="'+padL+'" y="'+(padT+3)+'" font-size="9" fill="#9aa3b0">'+maxY.toFixed(1)+' mSv</text>'
+    +'</svg></div>';
 }
 
 
@@ -1345,6 +1461,74 @@ function rsModalOk(){
   if (cb){ if (mode === 'prompt') cb(val); else cb(); }
 }
 function rsModalClose(){ document.getElementById('rsModal').classList.remove('active'); _rsCb = null; }
+
+
+// ===== 검사 종류 선택 (CT / 비CT / 기타) — 메인 화면 다중검사 =====
+function onExamTypeChange(){
+  const v=document.getElementById('examType').value;
+  const ct=document.getElementById('ctInputs'), nc=document.getElementById('nonCtBox'), rc=document.getElementById('resultCard');
+  const oi=document.getElementById('otherInputs');
+  if(v==='ct'){ ct.style.display=''; nc.style.display='none'; }
+  else {
+    ct.style.display='none'; nc.style.display='block'; if(rc) rc.style.display='none';
+    if(v==='other'){
+      if(oi) oi.style.display='block';
+      document.getElementById('nonCtInfo').innerHTML='<div style="font-size:13px;color:var(--text2,#667);padding:6px 0;">검사 이름과 대표 선량(mSv)을 입력한 뒤 조회하세요.</div>';
+    } else {
+      if(oi) oi.style.display='none';
+      renderNonCt(v);
+    }
+  }
+}
+function _renderDoseInfo(name, ed, note){
+  const xr=Math.max(1,Math.round(ed/0.02)), days=ed/3.0*365;
+  let nat = days<1?'하루치 미만':(days<30?('약 '+Math.round(days)+'일치'):(days<365?('약 '+Math.max(1,Math.round(days/30))+'개월치'):('약 '+(days/365).toFixed(1)+'년치')));
+  document.getElementById('nonCtInfo').innerHTML =
+    '<div style="font-size:13px;color:var(--text2,#667);">'+name+' 유효선량</div>'
+    +'<div style="font-size:34px;font-weight:900;color:var(--primary,#1a6fbf);margin:4px 0;">'+ed+' <span style="font-size:16px;">mSv</span></div>'
+    +'<div style="font-size:13px;color:var(--text2,#667);">흉부 X선 약 '+xr+'회 · 자연방사선 '+nat+'에 해당</div>'
+    +'<div style="font-size:11px;color:#9aa3b0;margin-top:8px;line-height:1.5;">'+note+'</div>';
+}
+function renderNonCt(key){
+  const t=EXAM_TYPES.find(function(x){return x.key===key;}); if(!t) return;
+  _renderDoseInfo(t.name+' 대표', t.dose, '※ 대표 추정값이며 장비·프로토콜에 따라 다릅니다. 개인 위험도 지표가 아닙니다.');
+}
+function renderOther(){
+  const name=(document.getElementById('otherName').value||'').trim();
+  const dose=parseFloat(document.getElementById('otherDose').value)||0;
+  if(!name){ if(typeof showToast==='function') showToast('검사 이름을 입력해 주세요'); return; }
+  if(!dose || dose<=0){ if(typeof showToast==='function') showToast('선량(mSv)을 입력해 주세요'); return; }
+  _renderDoseInfo(name, dose, '※ 직접 입력한 값이며 개인 위험도 지표가 아닙니다.');
+}
+function saveNonCtExam(){
+  const key=document.getElementById('examType').value;
+  let name, dose, type;
+  if(key==='other'){
+    name=(document.getElementById('otherName').value||'').trim();
+    dose=parseFloat(document.getElementById('otherDose').value)||0;
+    if(!name || !dose || dose<=0){ if(typeof showToast==='function') showToast('검사 이름과 선량을 입력한 뒤 저장하세요'); return; }
+    type='other';
+  } else {
+    const t=EXAM_TYPES.find(function(x){return x.key===key;}); if(!t) return;
+    name=t.name; dose=t.dose; type=key;
+  }
+  if(typeof curHistory==='function'){
+    curHistory().unshift({ ed:dose, baseDose:dose, label:name, type:type, date:new Date().toISOString().split('T')[0] });
+    saveState(); if(typeof renderRecords==='function') renderRecords();
+  }
+  if(typeof showToast==='function') showToast('✅ '+name+' 기록을 저장했어요');
+}
+
+
+// ===== 프리미엄 카드 잠금 (무료 사용자) =====
+function _lockPremiumCards(){
+  const lock = function(label){
+    return '<div style="text-align:center;padding:16px 8px;color:var(--text2,#667);font-size:13px;line-height:1.6;">🔒 '+label+'은(는) <b>프리미엄 기능</b>이에요<br><button class="btn-upgrade" style="margin-top:10px;font-size:13px;padding:8px 18px;" onclick="showPremiumModal()">✨ 프리미엄으로 보기</button></div>';
+  };
+  const pb=document.getElementById('profileBar'); if(pb) pb.innerHTML=lock('가족 프로필');
+  const pa=document.getElementById('profileAge'); if(pa) pa.innerHTML='';
+  const lb=document.getElementById('lifetimeBox'); if(lb) lb.innerHTML=lock('평생 누적·추이');
+}
 
 function renderResult(ed, region) {
   const card = document.getElementById('resultCard');
@@ -1421,20 +1605,16 @@ function saveToHistory() {
 //  RECORDS
 // ═══════════════════════════════
 function renderRecords() {
-  if (!state.isPremium) {
-    document.getElementById('recordsGate').style.display = 'block';
-    document.getElementById('recordsPremium').style.display = 'none';
-    return;
-  }
   document.getElementById('recordsGate').style.display = 'none';
   document.getElementById('recordsPremium').style.display = 'block';
   document.getElementById('recordsYear').textContent = new Date().getFullYear();
 
-  renderProfiles(); renderQuickExams();
+  renderQuickExams();
   const _h = curHistory();
   const _yr = new Date().getFullYear();
   const total = _h.filter(function(x){ return String(x.date||'').slice(0,4) == _yr; }).reduce((s, h) => s + h.ed, 0);
-  renderLifetime(_h.reduce((s, h) => s + h.ed, 0), _h.length);
+  if (state.isPremium) { renderProfiles(); renderLifetime(_h.reduce((s, h) => s + h.ed, 0), _h.length); }
+  else { _lockPremiumCards(); }
   const ref = 20;
   const pct = Math.min(total / ref * 100, 100);
   document.getElementById('annualSummary').textContent = `${total.toFixed(2)} / ${ref} mSv`;
@@ -1451,7 +1631,7 @@ function renderRecords() {
   }
   list.innerHTML = _h.map(h =>
     `<div class="history-item">
-      <div><div class="history-region">${h.label || REGION_NAMES[h.region] || h.region}</div><div class="history-date">${h.date}${h.ssde ? ' · SSDE ' + h.ssde.toFixed(1) + ' mGy' : ''}</div></div>
+      <div><div class="history-region">${h.label || REGION_NAMES[h.region] || h.region}</div><div class="history-date">${h.date}${h.ageAtRecord!=null ? ' · '+h.ageAtRecord+'세 반영' : ''}${h.ssde ? ' · SSDE ' + h.ssde.toFixed(1) + ' mGy' : ''}</div></div>
       <div class="history-dose">${h.ed.toFixed(2)} mSv</div>
     </div>`
   ).join('');
