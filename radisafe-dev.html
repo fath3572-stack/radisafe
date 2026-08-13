@@ -120,7 +120,8 @@ header {
   font-size: 13px; color: var(--text2); font-weight: 500;
   min-width: 72px; display: flex; flex-direction: column; align-items: center; gap: 4px;
 }
-.region-btn .ri { font-size: 24px; }
+.region-btn .ri { font-size: 30px; height: 38px; display: flex; align-items: center; justify-content: center; }
+.region-btn .ri svg { display: block; width: 36px; height: 36px; }
 .region-btn.selected { border-color: var(--primary); background: var(--primary-light); color: var(--primary); font-weight: 700; }
 .region-wrap { position: relative; }
 .region-arrow {
@@ -474,6 +475,7 @@ select {
     .req-region .region-wrap{box-shadow:0 0 0 2px #e5484d;border-radius:12px}
     .req-legend{font-size:12px;color:var(--text2);margin:0 0 12px;display:flex;gap:12px;flex-wrap:wrap;align-items:center}
 
+      .btn-lang{padding:6px 11px;border:1px solid var(--border);border-radius:16px;background:#fff;color:var(--text2);font-size:12px;font-weight:700;cursor:pointer;}
   </style>
 </head>
 <body>
@@ -484,7 +486,7 @@ select {
     <div class="logo-icon">☢️</div>
     RadiSafe <span style="background:#f5a623;color:#fff;font-size:10px;padding:2px 8px;border-radius:10px;font-weight:800;">DEV</span>
   </div>
-  <button class="btn-premium-header" onclick="showPremiumModal()" id="headerPremiumBtn">🛠 DEV · 프리미엄</button>
+  <div style="display:flex;gap:8px;align-items:center;"><button class="btn-lang" onclick="toggleLang()" id="langToggle">EN</button><button class="btn-premium-header" onclick="showPremiumModal()" id="headerPremiumBtn">🛠 DEV · 프리미엄</button></div>
 </header>
 
 <!-- Toast -->
@@ -495,8 +497,8 @@ select {
 ════════════════════════════════════════════ -->
 <div class="page active" id="page-calc">
   <div class="hero">
-    <h1>CT 방사선량,<br>직접 확인하세요</h1>
-    <p>CTDI·DLP 값을 입력하면 위험 반영 선량과<br>안전 여부를 알려드립니다<br><span style="font-size:12px;opacity:.75;">🛠 개발자 빌드 — 모든 프리미엄 기능 활성화</span></p>
+    <h1 data-i18n="hero_h1">내가 받은 방사선,<br>얼마나 될까?</h1>
+    <p><span data-i18n="hero_p">CT·X선·치과까지, 3초 만에<br>확인하고 기록하세요</span><br><span style="font-size:12px;opacity:.75;">🛠 개발자 빌드 — 모든 프리미엄 기능 활성화</span></p>
   </div>
 
   <div class="container">
@@ -527,11 +529,48 @@ select {
           <div id="otherInputs" style="display:none;margin-bottom:12px;">
             <div class="form-group">
               <label>검사 이름 <span class="req-badge">필수</span></label>
-              <input type="text" id="otherName" placeholder="예: 골밀도 정밀검사">
+              <input class="req-input" type="text" id="otherName" placeholder="예: 골밀도 정밀검사">
+            </div>
+            <div style="background:#f4f7fa;border-radius:10px;padding:12px;margin-bottom:12px;">
+              <div style="font-size:12px;color:var(--text2);margin-bottom:8px;font-weight:600;">흡수선량(ESD)·면적선량(DAP)만 있나요? → 유효선량 변환</div>
+              <div class="form-group">
+                <label>선량 종류</label>
+                <select class="req-input" id="convType" onchange="onConvTypeChange()">
+                  <option value="esd">입사표면선량 ESD (mGy)</option>
+                  <option value="dap">면적선량 DAP (mGy·cm² 등)</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label id="convValLabel">흡수선량 <span class="unit">(mGy · ESD)</span></label>
+                <input class="req-input" type="number" id="convMgy" inputmode="decimal" placeholder="예: 2.0" min="0" step="0.01">
+              </div>
+              <div class="form-group" id="convUnitWrap" style="display:none;">
+                <label>DAP 단위</label>
+                <select class="req-input" id="convUnit">
+                  <option value="0.001">mGy·cm²</option>
+                  <option value="0.01">cGy·cm²</option>
+                  <option value="0.1">dGy·cm²</option>
+                  <option value="1">Gy·cm²</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>촬영 부위</label>
+                <select class="req-input" id="convRegion">
+                  <option value="chest">흉부</option>
+                  <option value="abdomen">복부</option>
+                  <option value="pelvis">골반</option>
+                  <option value="spine_lumbar">요추</option>
+                  <option value="spine_cervical">경추·목</option>
+                  <option value="head">머리(두부)</option>
+                  <option value="limb">팔·다리(사지)</option>
+                </select>
+              </div>
+              <button class="btn-calc" onclick="convertMGy()" style="font-size:13px;padding:9px;">🔄 유효선량(mSv)으로 변환</button>
+              <div style="font-size:11px;color:#9aa3b0;margin-top:8px;line-height:1.5;">※ 부위별 대표 변환계수로 추정한 값입니다(ESD·DAP 각각 다른 계수). 촬영조건·체격에 따라 크게 다를 수 있고, DAP는 단위(mGy·cm²/dGy·cm² 등) 확인이 중요해요.</div>
             </div>
             <div class="form-group">
               <label>대표 유효선량 <span class="unit">(mSv)</span> <span class="req-badge">필수</span></label>
-              <input type="number" id="otherDose" inputmode="decimal" placeholder="예: 0.5" min="0" step="0.001">
+              <input class="req-input" type="number" id="otherDose" inputmode="decimal" placeholder="예: 0.5" min="0" step="0.001">
             </div>
             <button class="btn-calc" onclick="renderOther()">📊 조회하기</button>
           </div>
@@ -546,16 +585,16 @@ select {
         <button type="button" class="region-arrow left" onclick="scrollRegions(-1)" aria-label="이전 부위 보기">◀</button>
         <div class="region-scroll" id="regionScroll">
           <button class="region-btn" data-region="head"           onclick="selectRegion(this)"><span class="ri">🧠</span>머리</button>
-          <button class="region-btn" data-region="neck"           onclick="selectRegion(this)"><span class="ri">🫀</span>목</button>
+          <button class="region-btn" data-region="neck"           onclick="selectRegion(this)"><span class="ri"><svg viewBox="0 0 32 32"><path d="M7 5 C15 5 19 10 19 15 C19 22 17 26 15 29" fill="none" stroke="#f2cdac" stroke-width="4" stroke-linecap="round" opacity="0.5"/><g fill="#e4d7ad" stroke="#c2b280" stroke-width="0.6"><ellipse cx="14" cy="11" rx="3.2" ry="2"/><ellipse cx="15.4" cy="15.2" rx="3.2" ry="2"/><ellipse cx="15.8" cy="19.4" rx="3.2" ry="2"/><ellipse cx="15" cy="23.6" rx="3.2" ry="2"/><ellipse cx="13.7" cy="27.6" rx="3.2" ry="2"/></g></svg></span>목</button>
           <button class="region-btn" data-region="chest"          onclick="selectRegion(this)"><span class="ri">🫁</span>흉부</button>
-          <button class="region-btn" data-region="abdomen"        onclick="selectRegion(this)"><span class="ri">🫃</span>복부</button>
-          <button class="region-btn" data-region="pelvis"         onclick="selectRegion(this)"><span class="ri">🦴</span>골반</button>
-          <button class="region-btn" data-region="chest_abdomen"  onclick="selectRegion(this)"><span class="ri">🩺</span>흉복부</button>
-          <button class="region-btn" data-region="abdomen_pelvis" onclick="selectRegion(this)"><span class="ri">🔬</span>복골반</button>
+          <button class="region-btn" data-region="abdomen"        onclick="selectRegion(this)"><span class="ri"><svg viewBox="0 0 32 32"><path d="M9 9 C15 6 22 9 22 15 C22 18 19 19 16 18 C13 17 10 16 9 13 C8.5 11 8 10 9 9 Z" fill="#e58e8e" stroke="#cf7373" stroke-width="0.6"/><path d="M8 15 C5 16 5 23 8 25 L24 25 C27 23 27 16 24 15" fill="none" stroke="#eaa5a5" stroke-width="3.2" stroke-linecap="round"/><path d="M11 20 q3 -2 5 0 t5 0 t4 0" fill="none" stroke="#d98282" stroke-width="1.7" stroke-linecap="round"/></svg></span>복부</button>
+          <button class="region-btn" data-region="pelvis"         onclick="selectRegion(this)"><span class="ri"><svg viewBox="0 0 32 32"><g fill="#e4d7ad" stroke="#c2b280" stroke-width="0.7"><path d="M16 9 C12 8 5 9 4 14 C3 18 6 23 10 24 C12 24.5 14 26 15 28 L17 28 C18 26 20 24.5 22 24 C26 23 29 18 28 14 C27 9 20 8 16 9 Z"/><rect x="14" y="8" width="4" height="7" rx="1.2"/></g><ellipse cx="9.5" cy="18" rx="2.3" ry="3" fill="#fff" opacity="0.85"/><ellipse cx="22.5" cy="18" rx="2.3" ry="3" fill="#fff" opacity="0.85"/></svg></span>골반</button>
+          <button class="region-btn" data-region="chest_abdomen"  onclick="selectRegion(this)"><span class="ri"><svg viewBox="0 0 32 32"><path d="M13 6 C10 8 9 13 10 16 C10.5 17.5 12.5 17 13 15 L13.5 8 Z" fill="#f0b0b0" stroke="#d99090" stroke-width="0.5"/><path d="M19 6 C22 8 23 13 22 16 C21.5 17.5 19.5 17 19 15 L18.5 8 Z" fill="#f0b0b0" stroke="#d99090" stroke-width="0.5"/><rect x="15.4" y="6" width="1.2" height="10" fill="#d99090"/><path d="M11 20 C9 21 9 26 11 27 L21 27 C23 26 23 21 21 20" fill="none" stroke="#e59a9a" stroke-width="2.6" stroke-linecap="round"/></svg></span>흉복부</button>
+          <button class="region-btn" data-region="abdomen_pelvis" onclick="selectRegion(this)"><span class="ri"><svg viewBox="0 0 32 32"><path d="M10 8 q3 -2 6 0 t6 0" fill="none" stroke="#e59a9a" stroke-width="2.4" stroke-linecap="round"/><path d="M9 12 C6 13 6 18 9 19 L23 19 C26 18 26 13 23 12" fill="none" stroke="#eaa5a5" stroke-width="2.8" stroke-linecap="round"/><g fill="#e4d7ad" stroke="#c2b280" stroke-width="0.6"><path d="M16 21 C13 20 7 21 6 24 C5.5 26 8 29 11 29 L21 29 C24 29 26.5 26 26 24 C25 21 19 20 16 21 Z"/></g><ellipse cx="10.5" cy="25" rx="1.6" ry="2" fill="#fff" opacity="0.8"/><ellipse cx="21.5" cy="25" rx="1.6" ry="2" fill="#fff" opacity="0.8"/></svg></span>복골반</button>
           <button class="region-btn" data-region="whole"          onclick="selectRegion(this)"><span class="ri">🧍</span>전신</button>
-          <button class="region-btn" data-region="spine_cervical" onclick="selectRegion(this)"><span class="ri">🦴</span>경추</button>
-          <button class="region-btn" data-region="spine_thoracic" onclick="selectRegion(this)"><span class="ri">🦴</span>흉추</button>
-          <button class="region-btn" data-region="spine_lumbar"   onclick="selectRegion(this)"><span class="ri">🦴</span>요추</button>
+          <button class="region-btn" data-region="spine_cervical" onclick="selectRegion(this)"><span class="ri"><svg viewBox="0 0 32 32"><rect x="12.5" y="4" width="7" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="1"/><rect x="12.25" y="7.2" width="7.5" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="1"/><rect x="12" y="10.4" width="8" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="1"/><rect x="11.75" y="13.6" width="8.5" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="0.3"/><rect x="11.5" y="16.8" width="9" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="0.3"/><rect x="11.25" y="20" width="9.5" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="0.3"/><rect x="10.75" y="23.2" width="10.5" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="0.3"/><rect x="10.25" y="26.4" width="11.5" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="0.3"/></svg></span>경추</button>
+          <button class="region-btn" data-region="spine_thoracic" onclick="selectRegion(this)"><span class="ri"><svg viewBox="0 0 32 32"><rect x="12.5" y="4" width="7" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="0.3"/><rect x="12.25" y="7.2" width="7.5" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="0.3"/><rect x="12" y="10.4" width="8" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="0.3"/><rect x="11.75" y="13.6" width="8.5" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="1"/><rect x="11.5" y="16.8" width="9" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="1"/><rect x="11.25" y="20" width="9.5" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="1"/><rect x="10.75" y="23.2" width="10.5" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="0.3"/><rect x="10.25" y="26.4" width="11.5" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="0.3"/><path d="M12 15 q-4 1 -5 5" fill="none" stroke="#e0d0a0" stroke-width="0.9" opacity="0.7"/><path d="M20 15 q4 1 5 5" fill="none" stroke="#e0d0a0" stroke-width="0.9" opacity="0.7"/><path d="M11.5 18.5 q-4 1 -5 5" fill="none" stroke="#e0d0a0" stroke-width="0.9" opacity="0.7"/><path d="M20.5 18.5 q4 1 5 5" fill="none" stroke="#e0d0a0" stroke-width="0.9" opacity="0.7"/></svg></span>흉추</button>
+          <button class="region-btn" data-region="spine_lumbar"   onclick="selectRegion(this)"><span class="ri"><svg viewBox="0 0 32 32"><rect x="12.5" y="4" width="7" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="0.3"/><rect x="12.25" y="7.2" width="7.5" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="0.3"/><rect x="12" y="10.4" width="8" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="0.3"/><rect x="11.75" y="13.6" width="8.5" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="0.3"/><rect x="11.5" y="16.8" width="9" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="0.3"/><rect x="11.25" y="20" width="9.5" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="0.3"/><rect x="10.75" y="23.2" width="10.5" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="1"/><rect x="10.25" y="26.4" width="11.5" height="2.5" rx="1.2" fill="#e4d7ad" stroke="#c2b280" stroke-width="0.5" opacity="1"/></svg></span>요추</button>
           <button class="region-btn" data-region="upper_limb"     onclick="selectRegion(this)"><span class="ri">💪</span>상지</button>
           <button class="region-btn" data-region="lower_limb"     onclick="selectRegion(this)"><span class="ri">🦵</span>하지</button>
         </div>
@@ -625,7 +664,7 @@ select {
 
     <!-- Sticky calc button -->
     <div class="calc-sticky">
-      <button class="btn-calc" onclick="calculate()">📊 선량 계산하기</button>
+      <button class="btn-calc" onclick="calculate()" data-i18n="calc_btn">📊 선량 계산하기</button>
     </div>
     </div>
 
@@ -867,16 +906,16 @@ select {
 <!-- ── Tab Bar ── -->
 <nav class="tab-bar">
   <button class="tab-item active" onclick="goToTab('calc')" id="tab-calc">
-    <span class="tab-icon">🩻</span>계산기
+    <span class="tab-icon">🩻</span><span data-i18n="tab_calc">계산기</span>
   </button>
   <button class="tab-item" onclick="goToTab('records')" id="tab-records">
-    <span class="tab-icon">📅</span>내 기록
+    <span class="tab-icon">📅</span><span data-i18n="tab_records">내 기록</span>
   </button>
   <button class="tab-item" onclick="goToTab('premium')" id="tab-premium">
-    <span class="tab-icon">✨</span>프리미엄
+    <span class="tab-icon">✨</span><span data-i18n="tab_premium">프리미엄</span>
   </button>
   <button class="tab-item" onclick="goToTab('mypage')" id="tab-mypage">
-    <span class="tab-icon">👤</span>마이페이지
+    <span class="tab-icon">👤</span><span data-i18n="tab_mypage">마이페이지</span>
   </button>
 </nav>
 
@@ -1498,7 +1537,7 @@ function renderOther(){
   const dose=parseFloat(document.getElementById('otherDose').value)||0;
   if(!name){ if(typeof showToast==='function') showToast('검사 이름을 입력해 주세요'); return; }
   if(!dose || dose<=0){ if(typeof showToast==='function') showToast('선량(mSv)을 입력해 주세요'); return; }
-  _renderDoseInfo(name, dose, '※ 직접 입력한 값이며 개인 위험도 지표가 아닙니다.');
+  _renderDoseInfo(name, dose, '※ 직접 입력·변환한 참고값입니다. 흡수선량 변환은 촬영조건·체격에 따라 크게 다를 수 있어요. 개인 위험도 지표가 아닙니다.');
 }
 function saveNonCtExam(){
   const key=document.getElementById('examType').value;
@@ -1530,6 +1569,61 @@ function _lockPremiumCards(){
   const lb=document.getElementById('lifetimeBox'); if(lb) lb.innerHTML=lock('평생 누적·추이');
 }
 
+
+// ===== ESD(mGy)·DAP → 유효선량(mSv) 변환 (부위별 계수·추정) =====
+// 계수 출처: ESD→E, DAP→E Monte Carlo 변환계수(문헌 대표값).
+function onConvTypeChange(){
+  const t=document.getElementById('convType').value;
+  const uw=document.getElementById('convUnitWrap'), lb=document.getElementById('convValLabel');
+  if(t==='dap'){ if(uw) uw.style.display=''; if(lb) lb.innerHTML='DAP 값 <span class="unit">(면적선량)</span>'; }
+  else { if(uw) uw.style.display='none'; if(lb) lb.innerHTML='흡수선량 <span class="unit">(mGy · ESD)</span>'; }
+}
+function convertMGy(){
+  const ESD_CONV={chest:0.12, abdomen:0.14, pelvis:0.16, spine_lumbar:0.12, spine_cervical:0.05, head:0.01, limb:0.001};      // mSv per mGy(ESD)
+  const DAP_CONV={chest:0.20, abdomen:0.25, pelvis:0.15, spine_lumbar:0.21, spine_cervical:0.15, head:0.04, limb:0.01};        // mSv per Gy·cm²
+  const type=document.getElementById('convType').value;
+  const val=parseFloat(document.getElementById('convMgy').value)||0;
+  const reg=document.getElementById('convRegion').value;
+  if(!val || val<=0){ if(typeof showToast==='function') showToast('선량 값을 입력해 주세요'); return; }
+  let mSv;
+  if(type==='dap'){
+    const uf=parseFloat(document.getElementById('convUnit').value)||0.001; // 입력단위 → Gy·cm²
+    const dapGy=val*uf;
+    const coef=DAP_CONV[reg]!=null?DAP_CONV[reg]:0.21;
+    mSv=Math.round(dapGy*coef*1000)/1000;
+  } else {
+    const coef=ESD_CONV[reg]!=null?ESD_CONV[reg]:0.1;
+    mSv=Math.round(val*coef*1000)/1000;
+  }
+  document.getElementById('otherDose').value=mSv;
+  if(typeof showToast==='function') showToast('변환됨: 약 '+mSv+' mSv (추정)');
+}
+
+
+// ===== 다국어 i18n (1단계: 상단 메인) — EN 문구는 의료 검수 권장 =====
+const I18N = {
+  hero_h1: {ko:'내가 받은 방사선,<br>얼마나 될까?', en:'How much radiation<br>have you had?'},
+  hero_p:  {ko:'CT·X선·치과까지, 3초 만에<br>확인하고 기록하세요', en:'CT, X-ray, dental &amp; more —<br>check &amp; log in seconds'},
+  tab_calc:{ko:'계산기', en:'Calculator'},
+  tab_records:{ko:'내 기록', en:'My Records'},
+  tab_premium:{ko:'프리미엄', en:'Premium'},
+  tab_mypage:{ko:'마이페이지', en:'My Page'},
+  calc_btn:{ko:'📊 선량 계산하기', en:'📊 Calculate Dose'},
+};
+let _lang = (function(){ try{ return localStorage.getItem('radisafe_lang')||'ko'; }catch(e){ return 'ko'; } })();
+function applyLang(){
+  document.querySelectorAll('[data-i18n]').forEach(function(el){
+    var k=el.getAttribute('data-i18n');
+    if(I18N[k] && I18N[k][_lang]!=null) el.innerHTML=I18N[k][_lang];
+  });
+  document.querySelectorAll('.req-badge').forEach(function(b){ b.textContent = (_lang==='en')?'Required':'필수'; });
+  document.querySelectorAll('.opt-badge').forEach(function(b){ b.textContent = (_lang==='en')?'Optional':'선택'; });
+  var t=document.getElementById('langToggle'); if(t) t.textContent = (_lang==='ko')?'EN':'한국어';
+  try{ document.documentElement.lang=_lang; }catch(e){}
+}
+function toggleLang(){ _lang=(_lang==='ko')?'en':'ko'; try{ localStorage.setItem('radisafe_lang',_lang); }catch(e){} applyLang(); }
+
+applyLang();
 function renderResult(ed, region) {
   const card = document.getElementById('resultCard');
   card.style.display = 'block';
